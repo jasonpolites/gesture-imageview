@@ -1,2 +1,4 @@
-bin/
-gen/
+examples/bin
+examples/gen
+main/bin/
+main/gen/
