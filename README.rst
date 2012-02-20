@@ -19,10 +19,10 @@ Limitations:
 5. Does not support multiple images on screen
 
 Usage
------
+~~~~~
 
 Configured as View in layout.xml
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 code::
 
     <com.polites.android.GestureImageView
@@ -35,7 +35,7 @@ code::
     	
     	
 Configured Programmatically
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 code::    	
 
 	import com.polites.android.GestureImageView;
