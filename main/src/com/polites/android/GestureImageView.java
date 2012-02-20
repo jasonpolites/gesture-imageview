@@ -34,6 +34,8 @@ public class GestureImageView extends View  {
 	
 	private float rotation = 0.0f;
 	
+	private int lastOrientation = -1;
+	
 	private float centerX;
 	private float centerY;
 	
@@ -72,17 +74,46 @@ public class GestureImageView extends View  {
 	}
 	
 	@Override
-	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		super.onSizeChanged(w, h, oldw, oldh);
-		setupCanvas(w, h, getResources().getConfiguration().orientation);
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		
+		int orientation = getResources().getConfiguration().orientation;
+		
+		if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
+			displayHeight = MeasureSpec.getSize(heightMeasureSpec);
+			float ratio = (float) this.bitmap.getWidth() / (float) this.bitmap.getHeight();
+			displayWidth = Math.round( (float) displayHeight * ratio) ;
+		}
+		else {
+			displayWidth = MeasureSpec.getSize(widthMeasureSpec);
+			float ratio = (float) this.bitmap.getHeight() / (float) this.bitmap.getWidth();
+			displayHeight = Math.round( (float) displayWidth * ratio) ;
+		}
+		
+		setMeasuredDimension(displayWidth, displayHeight);
+	}
+	
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+		super.onLayout(changed, left, top, right, bottom);
+		if(changed) {
+			setupCanvas(displayWidth, displayHeight, getResources().getConfiguration().orientation);
+		}
 	}
 
 	protected void setupCanvas(int measuredWidth, int measuredHeight, int orientation) {
+		
+		if(lastOrientation != orientation) {
+			layout = false;
+			lastOrientation = orientation;
+		}
 		
 		if(bitmap != null && !layout) {
 			
 			int imageWidth = this.bitmap.getWidth();
 			int imageHeight = this.bitmap.getHeight();
+
+			hWidth = ((float)imageWidth / 2.0f);
+			hHeight = ((float)imageHeight / 2.0f);
 			
 			if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
 				displayHeight = measuredHeight;
@@ -90,7 +121,9 @@ public class GestureImageView extends View  {
 				// Calc height based on width
 				float ratio = (float) this.bitmap.getWidth() / (float) imageHeight;
 				
-				displayWidth = Math.round( (float) displayHeight * ratio) ;
+				displayWidth = Math.round( (float) displayHeight * ratio);
+				
+				startingScale = (float) displayHeight / (float) imageHeight;
 			}
 			else {
 				displayWidth = measuredWidth;
@@ -99,24 +132,11 @@ public class GestureImageView extends View  {
 				float ratio = (float) this.bitmap.getHeight() / (float) imageWidth;
 				
 				displayHeight = Math.round( (float) displayWidth * ratio) ;
-			}
-
-			hWidth = ((float)imageWidth / 2.0f);
-			hHeight = ((float)imageHeight / 2.0f);
-			
-			float widthRatio = (float) imageWidth / (float) displayWidth;
-			float heightRatio = (float) imageHeight / (float) displayHeight;
-			
-			if(widthRatio > heightRatio) {
+				
 				startingScale = (float) displayWidth / (float) imageWidth;
 			}
-			else {
-				startingScale = (float) displayHeight / (float) imageHeight;
-			}
 			
-			if(!layout) {
-				scaleAdjust = startingScale;
-			}
+			scaleAdjust = startingScale;
 			
 			this.centerX = (float)measuredWidth / 2.0f;
 			this.centerY = (float)measuredHeight / 2.0f;
