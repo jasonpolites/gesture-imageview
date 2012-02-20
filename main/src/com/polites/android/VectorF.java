@@ -1,6 +1,7 @@
 package com.polites.android;
 
 import android.graphics.PointF;
+import android.view.MotionEvent;
 
 public class VectorF {
 	
@@ -23,6 +24,13 @@ public class VectorF {
 	public void setEnd(PointF p) {
 		this.end.x = p.x;
 		this.end.y = p.y;
+	}
+	
+	public void set(MotionEvent event) {
+		this.start.x = event.getX(0);
+		this.start.y = event.getY(0);
+		this.end.x = event.getX(1);
+		this.end.y = event.getY(1);
 	}
 	
 	public void calculateLength() {

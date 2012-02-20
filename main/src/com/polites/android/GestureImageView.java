@@ -32,6 +32,8 @@ public class GestureImageView extends View  {
 	private float maxScale = 5.0f;
 	private float minScale = 0.25f;
 	
+	private float rotation = 0.0f;
+	
 	private float centerX;
 	private float centerY;
 	
@@ -148,6 +150,10 @@ public class GestureImageView extends View  {
 				
 				canvas.translate(x, y);
 				
+				if(rotation != 0.0f) {
+					canvas.rotate(rotation);
+				}
+				
 				if(adjustedScale != 1.0f) {
 					canvas.scale(adjustedScale, adjustedScale);
 				}
@@ -256,6 +262,10 @@ public class GestureImageView extends View  {
 		y = centerY;
 		scaleAdjust = startingScale;
 		redraw();
+	}
+	
+	public void setRotation(float rotation) {
+		this.rotation = rotation;
 	}
 
 	public void setGestureImageViewListener(GestureImageViewListener pinchImageViewListener) {

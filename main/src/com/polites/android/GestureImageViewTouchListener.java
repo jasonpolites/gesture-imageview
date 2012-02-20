@@ -10,13 +10,17 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private GestureImageView image;
 	
-	private PointF current = new PointF();
-	private PointF last = new PointF();
-	private PointF next = new PointF();
+	private final PointF current = new PointF();
+	private final PointF last = new PointF();
+	private final PointF next = new PointF();
+	private final PointF midpoint = new PointF();
+	
+	private final VectorF scaleVector = new VectorF();
+	private final VectorF pinchVector = new VectorF();
 	
 	boolean touched = false;
 	
-	private float lastDistance;
+	private float initialDistance;
 	private float lastScale = 1.0f;
 	private float currentScale = 1.0f;
 	
@@ -43,10 +47,6 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private int imageWidth;
 	private int imageHeight;
-	
-	private final PointF midpoint = new PointF();
-	
-	private final VectorF lastVector = new VectorF();
 	
 	private DoubleTapListener doubleTapListener;
 	private GestureDetector doubleTapDetector;
@@ -92,7 +92,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	public boolean onTouch(View v, MotionEvent event) {
 		
 		if(doubleTapDetector.onTouchEvent(event)) {
-			lastDistance = 0;
+			initialDistance = 0;
 			lastScale = startingScale;
 			currentScale = startingScale;
 			next.x = image.getX();
@@ -103,7 +103,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			
 			multiTouch = false;
 			
-			lastDistance = 0;
+			initialDistance = 0;
 			lastScale = currentScale;
 			
 			if(!canDragX) {
@@ -144,13 +144,17 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		else if(event.getAction() == MotionEvent.ACTION_MOVE) {
 			if(event.getPointerCount() > 1) {
 				multiTouch = true;
-				if(lastDistance > 0) {
-					float distance = MathUtils.distance(event);
+				if(initialDistance > 0) {
 					
-					if(lastDistance != distance) {
+					pinchVector.set(event);
+					pinchVector.calculateLength();
+					
+					float distance = pinchVector.length;
+					
+					if(initialDistance != distance) {
 						
 						// We have moved (scaled)
-						currentScale = (distance / lastDistance) * lastScale;
+						currentScale = (distance / initialDistance) * lastScale;
 						
 						if(currentScale > maxScale) {
 							currentScale = maxScale;	
@@ -161,14 +165,14 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 						
 						calculateBoundaries();
 						
-						lastVector.length *= currentScale;
+						scaleVector.length *= currentScale;
 						
-						lastVector.calculateEndPoint();
+						scaleVector.calculateEndPoint();
 						
-						lastVector.length /= currentScale;
+						scaleVector.length /= currentScale;
 						
-						next.x = lastVector.end.x;
-						next.y = lastVector.end.y;
+						next.x = scaleVector.end.x;
+						next.y = scaleVector.end.y;
 						
 						image.setScale(currentScale);
 						image.setPosition(next.x, next.y);
@@ -182,17 +186,17 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 					}
 				}
 				else {
-					lastDistance = MathUtils.distance(event);
+					initialDistance = MathUtils.distance(event);
 					
 					MathUtils.midpoint(event, midpoint);
 					
-					lastVector.setStart(midpoint);
-					lastVector.setEnd(next);
+					scaleVector.setStart(midpoint);
+					scaleVector.setEnd(next);
 					
-					lastVector.calculateLength();
-					lastVector.calculateAngle();
+					scaleVector.calculateLength();
+					scaleVector.calculateAngle();
 					
-					lastVector.length /= lastScale;
+					scaleVector.length /= lastScale;
 				}
 			}
 			else {

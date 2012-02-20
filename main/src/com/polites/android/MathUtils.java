@@ -12,15 +12,6 @@ public class MathUtils {
 		return FloatMath.sqrt(x * x + y * y);
 	}
 	
-	public static void vector(float x1, float y1, float x2, float y2, VectorF vector) {
-		vector.start.x = x1;
-		vector.start.y = y1;
-		vector.end.x = x2;
-		vector.end.y = y2;
-		vector.length = distance(x1, y1, x2, y2);
-		vector.angle = angle(x1, y1, x2, y2);
-	}
-	
 	public static float distance(PointF p1, PointF p2) {
 		float x = p1.x - p2.x;
 		float y = p1.y - p2.y;
