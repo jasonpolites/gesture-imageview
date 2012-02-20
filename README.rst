@@ -10,17 +10,19 @@ Features:
 3. Double tap reset
 4. Configurable zoom boundaries (min/max)
 
-NOT Implemented (and may never be :/):
+Limitations:
 
-1. Fling
-2. Rotation
-3. Pan and Zoom together
+1. Does not support Fling
+2. Does not support Rotation
+3. Does not support Pan and Zoom together
+4. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is not a bitmap/png/jpg)
+5. Does not support multiple images on screen
 
 Usage
 -----
 
 Configured as View in layout.xml
-================================
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 code::
 
     <com.polites.android.GestureImageView
@@ -30,3 +32,34 @@ code::
     	gesture-image:min-scale="0.1"
     	gesture-image:max-scale="10.0"
     	android:src="@drawable/image"/>
+    	
+    	
+Configured Programmatically
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+code::    	
+
+	import com.polites.android.GestureImageView;
+	
+	import android.app.Activity;
+	import android.os.Bundle;
+	import android.view.ViewGroup;
+	import android.widget.LinearLayout.LayoutParams;
+	
+	public class SampleActivity extends Activity {
+	    @Override
+	    public void onCreate(Bundle savedInstanceState) {
+	        super.onCreate(savedInstanceState);
+	        setContentView(R.layout.main);
+	        
+	        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+	        
+	        GestureImageView view = new GestureImageView(this);
+	        view.setImageResource(R.drawable.image);
+	        view.setLayoutParams(params);
+	        
+	        ViewGroup layout = (ViewGroup) findViewById(R.id.layout);
+	
+	        layout.addView(view);
+	    }
+	}
+	

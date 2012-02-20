@@ -76,10 +76,10 @@ public class GestureImageView extends View  {
 		super.onSizeChanged(w, h, oldw, oldh);
 		setupCanvas(w, h, getResources().getConfiguration().orientation);
 	}
-	
+
 	protected void setupCanvas(int measuredWidth, int measuredHeight, int orientation) {
 		
-		if(bitmap != null) {
+		if(bitmap != null && !layout) {
 			
 			int imageWidth = this.bitmap.getWidth();
 			int imageHeight = this.bitmap.getHeight();
@@ -118,8 +118,8 @@ public class GestureImageView extends View  {
 				scaleAdjust = startingScale;
 			}
 			
-			this.centerX = (float)measuredWidth  / 2.0f;
-			this.centerY = (float)measuredHeight  / 2.0f;
+			this.centerX = (float)measuredWidth / 2.0f;
+			this.centerY = (float)measuredHeight / 2.0f;
 			
 			x = centerX;
 			y = centerY;
