@@ -1,5 +1,6 @@
 package com.polites.android;
 
+import android.graphics.PointF;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -9,7 +10,9 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private GestureImageView image;
 	
-	private float currentX = 0, currentY = 0, lastX = 0, lastY = 0, nextX = 0, nextY = 0;
+	private PointF current = new PointF();
+	private PointF last = new PointF();
+	private PointF next = new PointF();
 	
 	boolean touched = false;
 	
@@ -41,8 +44,12 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private int imageWidth;
 	private int imageHeight;
 	
-	private GestureListener gListener;
-	private GestureDetector gDetector;
+	private final PointF midpoint = new PointF();
+	
+	private final VectorF lastVector = new VectorF();
+	
+	private DoubleTapListener doubleTapListener;
+	private GestureDetector doubleTapDetector;
 	private GestureImageViewListener imageListener;
 
 	public GestureImageViewTouchListener(GestureImageView image, int displayWidth, int displayHeight) {
@@ -70,11 +77,11 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		boundaryLeft = 0;
 		boundaryTop = 0;
 		
-		nextX = image.getX();
-		nextY = image.getY();
+		next.x = image.getX();
+		next.y = image.getY();
 		
-		gListener = new GestureListener(image);
-		gDetector = new GestureDetector(gListener);
+		doubleTapListener = new DoubleTapListener(image);
+		doubleTapDetector = new GestureDetector(doubleTapListener);
 		imageListener = image.getGestureImageViewListener();
 		
 		calculateBoundaries();
@@ -84,12 +91,12 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		
-		if(gDetector.onTouchEvent(event)) {
+		if(doubleTapDetector.onTouchEvent(event)) {
 			lastDistance = 0;
 			lastScale = startingScale;
 			currentScale = startingScale;
-			nextX = image.getX();
-			nextY = image.getY();
+			next.x = image.getX();
+			next.y = image.getY();
 		}
 		
 		if(event.getAction() == MotionEvent.ACTION_UP) {
@@ -100,11 +107,11 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			lastScale = currentScale;
 			
 			if(!canDragX) {
-				nextX = centerX;
+				next.x = centerX;
 			}
 			
 			if(!canDragY) {
-				nextY = centerY;
+				next.y = centerY;
 			}
 			
 			boundCoordinates();
@@ -115,22 +122,23 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			}
 			
 			image.setScale(currentScale);
-			image.setPosition(nextX, nextY);
+			image.setPosition(next.x, next.y);
 			
 			if(imageListener != null) {
 				imageListener.onScale(currentScale);
-				imageListener.onPosition(nextX, nextY);
-			}			
+				imageListener.onPosition(next.x, next.y);
+			}	
 			
 			image.redraw();
 		}
 		else if(event.getAction() == MotionEvent.ACTION_DOWN) {
-			lastX = event.getX();
-			lastY = event.getY();
+			last.x = event.getX();
+			last.y = event.getY();
 			
 			if(imageListener != null) {
-				imageListener.onTouch(lastX, lastY);
+				imageListener.onTouch(last.x, last.y);
 			}
+			
 			touched = true;
 		}
 		else if(event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -138,36 +146,62 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 				multiTouch = true;
 				if(lastDistance > 0) {
 					float distance = MathUtils.distance(event);
-					currentScale = (distance / lastDistance) * lastScale;
 					
-					if(currentScale > maxScale) {
-						currentScale = maxScale;	
+					if(lastDistance != distance) {
+						
+						// We have moved (scaled)
+						currentScale = (distance / lastDistance) * lastScale;
+						
+						if(currentScale > maxScale) {
+							currentScale = maxScale;	
+						}
+						else if (currentScale < minScale) {
+							currentScale = minScale;
+						}
+						
+						calculateBoundaries();
+						
+						lastVector.length *= currentScale;
+						
+						lastVector.calculateEndPoint();
+						
+						lastVector.length /= currentScale;
+						
+						next.x = lastVector.end.x;
+						next.y = lastVector.end.y;
+						
+						image.setScale(currentScale);
+						image.setPosition(next.x, next.y);
+						
+						if(imageListener != null) {
+							imageListener.onScale(currentScale);
+							imageListener.onPosition(next.x, next.y);
+						}
+						
+						image.redraw();
 					}
-					else if (currentScale < minScale) {
-						currentScale = minScale;
-					}
-					
-					calculateBoundaries();
-//					midpoint(event);
-					image.setScale(currentScale);
-					
-					if(imageListener != null) {
-						imageListener.onScale(currentScale);
-					}						
-					
-					image.redraw();
 				}
 				else {
 					lastDistance = MathUtils.distance(event);
+					
+					MathUtils.midpoint(event, midpoint);
+					
+					lastVector.setStart(midpoint);
+					lastVector.setEnd(next);
+					
+					lastVector.calculateLength();
+					lastVector.calculateAngle();
+					
+					lastVector.length /= lastScale;
 				}
 			}
 			else {
 				if(!touched) {
 					touched = true;
-					lastX = event.getX();
-					lastY = event.getY();
-					nextX = image.getX();
-					nextY = image.getY();
+					last.x = event.getX();
+					last.y = event.getY();
+					next.x = image.getX();
+					next.y = image.getY();
 				}
 				else if(!multiTouch) {
 					if(handleDrag(event.getX(), event.getY())) {
@@ -180,27 +214,27 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	}
 	
 	protected boolean handleDrag(float x, float y) {
-		currentX = x;
-		currentY = y;
+		current.x = x;
+		current.y = y;
 		
-		float diffX = (currentX - lastX);
-		float diffY = (currentY - lastY);
+		float diffX = (current.x - last.x);
+		float diffY = (current.y - last.y);
 		
 		if(diffX != 0 || diffY != 0) {
 			
-			if(canDragX) nextX += diffX;
-			if(canDragY) nextY += diffY;
+			if(canDragX) next.x += diffX;
+			if(canDragY) next.y += diffY;
 			
 			boundCoordinates();
 			
-			lastX = currentX;
-			lastY = currentY;
+			last.x = current.x;
+			last.y = current.y;
 			
 			if(canDragX || canDragY) {
-				image.setPosition(nextX, nextY);
+				image.setPosition(next.x, next.y);
 				
 				if(imageListener != null) {
-					imageListener.onPosition(nextX, nextY);
+					imageListener.onPosition(next.x, next.y);
 				}					
 				
 				return true;
@@ -212,11 +246,11 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	public void reset() {
 		currentScale = startingScale;
-		nextX = centerX;
-		nextY = centerY;
+		next.x = centerX;
+		next.y = centerY;
 		calculateBoundaries();
 		image.setScale(currentScale);
-		image.setPosition(nextX, nextY);
+		image.setPosition(next.x, next.y);
 		image.redraw();
 	}
 	
@@ -238,18 +272,18 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	}
 
 	protected void boundCoordinates() {
-		if(nextX < boundaryLeft) {
-			nextX = boundaryLeft;
+		if(next.x < boundaryLeft) {
+			next.x = boundaryLeft;
 		}
-		else if(nextX > boundaryRight) {
-			nextX = boundaryRight;
+		else if(next.x > boundaryRight) {
+			next.x = boundaryRight;
 		}
 
-		if(nextY < boundaryTop) { 
-			nextY = boundaryTop;
+		if(next.y < boundaryTop) { 
+			next.y = boundaryTop;
 		}
-		else if(nextY > boundaryBottom) {
-			nextY = boundaryBottom;
+		else if(next.y > boundaryBottom) {
+			next.y = boundaryBottom;
 		}
 	}
 	

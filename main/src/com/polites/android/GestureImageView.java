@@ -68,24 +68,16 @@ public class GestureImageView extends View  {
 	public GestureImageView(Context context) {
 		super(context);
 	}
-
-
 	
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-		
-		int orientation = getResources().getConfiguration().orientation;
-		
-		System.out.println(orientation);
-		setupCanvas(w, h, orientation);
-		
+		setupCanvas(w, h, getResources().getConfiguration().orientation);
 	}
 	
 	protected void setupCanvas(int measuredWidth, int measuredHeight, int orientation) {
 		
 		if(bitmap != null) {
-			
 			
 			int imageWidth = this.bitmap.getWidth();
 			int imageHeight = this.bitmap.getHeight();
@@ -114,13 +106,15 @@ public class GestureImageView extends View  {
 			float heightRatio = (float) imageHeight / (float) displayHeight;
 			
 			if(widthRatio > heightRatio) {
-				scaleAdjust = (float) displayWidth / (float) imageWidth;
+				startingScale = (float) displayWidth / (float) imageWidth;
 			}
 			else {
-				scaleAdjust = (float) displayHeight / (float) imageHeight;
+				startingScale = (float) displayHeight / (float) imageHeight;
 			}
 			
-			startingScale = scaleAdjust;
+			if(!layout) {
+				scaleAdjust = startingScale;
+			}
 			
 			this.centerX = (float)measuredWidth  / 2.0f;
 			this.centerY = (float)measuredHeight  / 2.0f;
@@ -135,20 +129,9 @@ public class GestureImageView extends View  {
 			setOnTouchListener(gestureImageViewTouchListener);	
 			
 			layout = true;
+			viewSet = false;
 		}
 	}
-
-//	@Override
-//	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-//		if(bitmap != null) {
-//			
-//			
-//			setMeasuredDimension(measuredWidth, measuredHeight);
-//		}
-//		else {
-//			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//		}
-//	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
@@ -189,6 +172,7 @@ public class GestureImageView extends View  {
 	protected void onDetachedFromWindow() {
 		if(recycle && bitmap != null && !bitmap.isRecycled()) {
 			bitmap.recycle();
+			bitmap = null;
 		}
 		super.onDetachedFromWindow();
 	}
@@ -199,6 +183,9 @@ public class GestureImageView extends View  {
 	}
 	
 	public void setImageResource(int id) {
+		if(this.bitmap != null) {
+			this.bitmap.recycle();
+		}
 		if(id >= 0) {
 			this.recycle = true;
 			this.resId = id;
