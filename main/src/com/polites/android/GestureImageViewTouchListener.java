@@ -97,6 +97,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			currentScale = startingScale;
 			next.x = image.getX();
 			next.y = image.getY();
+			calculateBoundaries();
 		}
 		
 		if(event.getAction() == MotionEvent.ACTION_UP) {
