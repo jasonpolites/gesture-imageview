@@ -9,3 +9,9 @@ Features:
 2. Panning
 3. Double tap reset
 4. Configurable zoom boundaries (min/max)
+
+NOT Implemented (and may never be :/):
+
+1. Fling
+2. Rotation
+3. Pan and Zoom together
