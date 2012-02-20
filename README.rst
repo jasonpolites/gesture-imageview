@@ -16,7 +16,6 @@ Limitations:
 2. Does not support Rotation
 3. Does not support Pan and Zoom together
 4. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is not a bitmap/png/jpg)
-5. Does not support multiple images on screen
 
 Usage
 ~~~~~
