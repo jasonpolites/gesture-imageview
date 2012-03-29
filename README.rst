@@ -6,16 +6,15 @@ This is a simple Android View class which provides basic pinch-zoom capability f
 Features:
 ~~~~~~~~~
 1. Pinch zoom in place (i.e. zoom occurs from point of touch)
-2. Panning
+2. Panning with fling gesture
 3. Double tap reset
 4. Configurable zoom boundaries (min/max)
 
 Limitations:
 ~~~~~~~~~~~~
-1. Does not support Fling
-2. Does not support Rotation
-3. Does not support Pan and Zoom together
-4. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is not a bitmap/png/jpg)
+1. Does not support Rotation
+2. Does not support Pan and Zoom together
+3. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is not a bitmap/png/jpg)
 
 Usage
 ~~~~~
