@@ -49,7 +49,10 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private int imageHeight;
 	
 	private DoubleTapListener doubleTapListener;
+	private FlingListener flingListener;
+	private FlingAnimation flingAnimation;
 	private GestureDetector doubleTapDetector;
+	private GestureDetector flingDetector;
 	private GestureImageViewListener imageListener;
 
 	public GestureImageViewTouchListener(GestureImageView image, int displayWidth, int displayHeight) {
@@ -81,15 +84,40 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		next.y = image.getY();
 		
 		doubleTapListener = new DoubleTapListener(image);
+		flingListener = new FlingListener();
+		flingAnimation = new FlingAnimation();
+		
+		flingAnimation.setListener(new FlingAnimationListener() {
+			@Override
+			public void onMove(float x, float y) {
+				handleDrag(current.x + x, current.y + y);
+			}
+		});
+		
 		doubleTapDetector = new GestureDetector(doubleTapListener);
+		flingDetector = new GestureDetector(flingListener);
+		
 		imageListener = image.getGestureImageViewListener();
 		
 		calculateBoundaries();
 	}
 	
-
+	private void startFling() {
+		flingAnimation.setVelocityX(flingListener.getVelocityX());
+		flingAnimation.setVelocityY(flingListener.getVelocityY());
+		image.animationStart(flingAnimation);
+	}
+	
+	private void stopFling() {
+		image.animationStop();
+	}
+	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+		
+		if(event.getPointerCount() == 1 && flingDetector.onTouchEvent(event)) {
+			startFling();
+		}
 		
 		if(doubleTapDetector.onTouchEvent(event)) {
 			initialDistance = 0;
@@ -133,6 +161,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			image.redraw();
 		}
 		else if(event.getAction() == MotionEvent.ACTION_DOWN) {
+			stopFling();
+			
 			last.x = event.getX();
 			last.y = event.getY();
 			
@@ -215,6 +245,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 				}
 			}
 		}
+		
 		return true;
 	}
 	

@@ -1,5 +1,7 @@
 package com.polites.android;
 
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -15,6 +17,9 @@ public class GestureImageView extends View  {
 	
 	public static final String GLOBAL_NS = "http://schemas.android.com/apk/res/android";
 	public static final String LOCAL_NS = "http://schemas.polites.com/android";
+	
+	private final Semaphore drawLock = new Semaphore(0);
+	private Animator animator;
 	
 	private Bitmap bitmap;
 	
@@ -182,20 +187,51 @@ public class GestureImageView extends View  {
 				
 				canvas.restore();
 			}
+			
+			if(drawLock.availablePermits() <= 0) {
+				drawLock.release();
+			}
 		}
+	}
+	
+	/**
+	 * Waits for a draw
+	 * @param max time to wait for draw (ms)
+	 * @throws InterruptedException
+	 */
+	public boolean waitForDraw(long timeout) throws InterruptedException {
+		return drawLock.tryAcquire(timeout, TimeUnit.MILLISECONDS);
 	}
 	
 	@Override
 	protected void onAttachedToWindow() {
+		animator = new Animator(this, "GestureImageViewAnimator");
+		animator.start();
+		
+		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		paint.setAntiAlias(true);
+		paint.setFilterBitmap(true);		
+		
 		if(resId >= 0 && bitmap == null) {
 			setImageResource(resId);
 		}
 		
 		super.onAttachedToWindow();
 	}
+	
+	public void animationStart(Animation animation) {
+		animator.play(animation);
+	}
+	
+	public void animationStop() {
+		animator.cancel();
+	}
 
 	@Override
 	protected void onDetachedFromWindow() {
+		if(animator != null) {
+			animator.finish();
+		}
 		if(recycle && bitmap != null && !bitmap.isRecycled()) {
 			bitmap.recycle();
 			bitmap = null;
@@ -205,7 +241,6 @@ public class GestureImageView extends View  {
 
 	public void setImageBitmap(Bitmap image) {
 		this.bitmap = image;
-		init();
 	}
 	
 	public void setImageResource(int id) {
@@ -216,14 +251,7 @@ public class GestureImageView extends View  {
 			this.recycle = true;
 			this.resId = id;
 			this.bitmap = BitmapFactory.decodeResource(getContext().getResources(), id);
-			init();
 		}
-	}
-	
-	protected void init() {
-		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		paint.setAntiAlias(true);
-		paint.setFilterBitmap(true);		
 	}
 	
 	public int getImageWidth() {
@@ -232,6 +260,11 @@ public class GestureImageView extends View  {
 
 	public int getImageHeight() {
 		return  (bitmap == null) ? 0 : bitmap.getHeight();
+	}
+	
+	public void moveBy(float x, float y) {
+		this.x += x;
+		this.y += y;
 	}
 	
 	public void setPosition(float x, float y) {
