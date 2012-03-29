@@ -15,16 +15,8 @@ public class FlingListener extends SimpleOnGestureListener {
 	
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-		
 		this.velocityX = velocityX;
 		this.velocityY = velocityY;
-		
-//		Log.e("FlingListener", "Flung at [" +
-//				velocityX +
-//				"," +
-//				velocityY +
-//				"]");
-		
 		return true;
 	}
 

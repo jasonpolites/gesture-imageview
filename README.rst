@@ -1,7 +1,9 @@
 GestureImageView
 ================
 
-This is a simple Android View class which provides basic pinch-zoom capability for images.
+This is a simple Android View class which provides basic pinch and zoom capability for images.
+
+Can be used as a replacement for a standard ImageView when you want to include pinch and zoom.
 
 Features:
 ~~~~~~~~~
