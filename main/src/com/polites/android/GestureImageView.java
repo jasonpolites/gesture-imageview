@@ -8,8 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Handler;
-import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -55,13 +53,6 @@ public class GestureImageView extends View  {
 	
 	private GestureImageViewListener gestureImageViewListener;
 	private GestureImageViewTouchListener gestureImageViewTouchListener;
-	
-	private Handler mRedrawHandler = new Handler()  {
-		@Override
-		public void handleMessage(Message msg) {
-			invalidate();
-		}
-	};
 	
 	public GestureImageView(Context context, AttributeSet attrs, int defStyle) {
 		this(context, attrs);
@@ -273,7 +264,7 @@ public class GestureImageView extends View  {
 	}
 
 	public void redraw() {
-		mRedrawHandler.sendEmptyMessage(0);
+		postInvalidate();
 	}
 
 	public void setMinScale(float min) {

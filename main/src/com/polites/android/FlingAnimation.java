@@ -12,7 +12,7 @@ public class FlingAnimation implements Animation {
 	private float velocityX;
 	private float velocityY;
 	
-	private float factor = 0.85f;
+	private float factor = 0.9f;
 	
 	private float threshold = 10;
 	
