@@ -103,7 +103,7 @@ public class GestureImageView extends ImageView  {
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		if(changed) {
+		if(changed || !layout) {
 			setupCanvas(displayWidth, displayHeight, getResources().getConfiguration().orientation);
 		}
 	}
@@ -256,24 +256,31 @@ public class GestureImageView extends ImageView  {
 		super.onDetachedFromWindow();
 	}
 
-	protected void initImage() {
+	protected void initImage(boolean replaced) {
 		this.drawable.setAlpha(alpha);
 		this.drawable.setFilterBitmap(true);
 		if(colorFilter != null) {
 			this.drawable.setColorFilter(colorFilter);
 		}
-		redraw();
+		
+		if(replaced) {
+			layout = false;
+			requestLayout();
+			redraw();
+		}
 	}
 	
 	public void setImageBitmap(Bitmap image) {
+		boolean replaced = (drawable != null);
 		this.drawable = new BitmapDrawable(image);
-		initImage();
+		initImage(replaced);
 	}
 	
 	@Override
 	public void setImageDrawable(Drawable drawable) {
+		boolean replaced = (drawable != null);
 		this.drawable = drawable;
-		initImage();
+		initImage(replaced);
 	}
 	
 	public void setImageResource(int id) {
