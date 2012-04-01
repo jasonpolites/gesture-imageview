@@ -7,11 +7,15 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.ColorFilter;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.util.AttributeSet;
-import android.view.View;
+import android.widget.ImageView;
 
-public class GestureImageView extends View  {
+public class GestureImageView extends ImageView  {
 	
 	public static final String GLOBAL_NS = "http://schemas.android.com/apk/res/android";
 	public static final String LOCAL_NS = "http://schemas.polites.com/android";
@@ -19,10 +23,8 @@ public class GestureImageView extends View  {
 	private final Semaphore drawLock = new Semaphore(0);
 	private Animator animator;
 	
-	private Bitmap bitmap;
+	private Drawable drawable;
 	
-	private Paint paint;
-
 	private float x = 0, y = 0;
 	
 	private boolean layout = false;
@@ -41,14 +43,18 @@ public class GestureImageView extends View  {
 	private float centerX;
 	private float centerY;
 	
-	private float hWidth;
-	private float hHeight;
+	private int hWidth;
+	private int hHeight;
 	
 	private int resId = -1;
 	private boolean recycle = false;
+	private boolean strict = false;
 	
 	private int displayHeight;
 	private int displayWidth;
+	
+	private int alpha = 255;
+	private ColorFilter colorFilter;
 	
 	private GestureImageViewListener gestureImageViewListener;
 	private GestureImageViewTouchListener gestureImageViewTouchListener;
@@ -62,6 +68,8 @@ public class GestureImageView extends View  {
 		setImageResource(attrs.getAttributeResourceValue(GLOBAL_NS, "src", -1));
 		setMinScale(attrs.getAttributeFloatValue(LOCAL_NS, "min-scale", minScale));
 		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "max-scale", maxScale));
+		setStrict(attrs.getAttributeBooleanValue(LOCAL_NS, "strict", strict));
+		setRecycle(attrs.getAttributeBooleanValue(LOCAL_NS, "recycle", recycle));
 	}
 
 	public GestureImageView(Context context) {
@@ -70,16 +78,16 @@ public class GestureImageView extends View  {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if(bitmap != null) {
+		if(drawable != null) {
 			int orientation = getResources().getConfiguration().orientation;
 			if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
 				displayHeight = MeasureSpec.getSize(heightMeasureSpec);
-				float ratio = (float) this.bitmap.getWidth() / (float) this.bitmap.getHeight();
+				float ratio = (float) getImageWidth() / (float) getImageHeight();
 				displayWidth = Math.round( (float) displayHeight * ratio) ;
 			}
 			else {
 				displayWidth = MeasureSpec.getSize(widthMeasureSpec);
-				float ratio = (float) this.bitmap.getHeight() / (float) this.bitmap.getWidth();
+				float ratio = (float) getImageHeight() / (float) getImageWidth();
 				displayHeight = Math.round( (float) displayWidth * ratio) ;
 			}
 			
@@ -99,7 +107,7 @@ public class GestureImageView extends View  {
 			setupCanvas(displayWidth, displayHeight, getResources().getConfiguration().orientation);
 		}
 	}
-
+	
 	protected void setupCanvas(int measuredWidth, int measuredHeight, int orientation) {
 		
 		if(lastOrientation != orientation) {
@@ -107,19 +115,18 @@ public class GestureImageView extends View  {
 			lastOrientation = orientation;
 		}
 		
-		if(bitmap != null && !layout) {
-			
-			int imageWidth = this.bitmap.getWidth();
-			int imageHeight = this.bitmap.getHeight();
+		if(drawable != null && !layout) {
+			int imageWidth = getImageWidth();
+			int imageHeight = getImageHeight();
 
-			hWidth = ((float)imageWidth / 2.0f);
-			hHeight = ((float)imageHeight / 2.0f);
+			hWidth = Math.round(((float)imageWidth / 2.0f));
+			hHeight = Math.round(((float)imageHeight / 2.0f));
 			
 			if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
 				displayHeight = measuredHeight;
 				
 				// Calc height based on width
-				float ratio = (float) this.bitmap.getWidth() / (float) imageHeight;
+				float ratio = (float) imageWidth / (float) imageHeight;
 				
 				displayWidth = Math.round( (float) displayHeight * ratio);
 				
@@ -129,7 +136,7 @@ public class GestureImageView extends View  {
 				displayWidth = measuredWidth;
 				
 				// Calc height based on width
-				float ratio = (float) this.bitmap.getHeight() / (float) imageWidth;
+				float ratio = (float) imageHeight / (float) imageWidth;
 				
 				displayHeight = Math.round( (float) displayWidth * ratio) ;
 				
@@ -148,16 +155,31 @@ public class GestureImageView extends View  {
 			gestureImageViewTouchListener.setMinScale(minScale);
 			gestureImageViewTouchListener.setMaxScale(maxScale);
 			
+			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
+			
 			setOnTouchListener(gestureImageViewTouchListener);	
 			
 			layout = true;
 		}
 	}
 
+	protected boolean isRecycled() {
+		if(drawable != null && drawable instanceof BitmapDrawable) {
+			return ((BitmapDrawable)drawable).getBitmap().isRecycled();
+		}
+		return false;
+	}
+	
+	protected void recycle() {
+		if(recycle && drawable != null && drawable instanceof BitmapDrawable) {
+			((BitmapDrawable)drawable).getBitmap().recycle();
+		}
+	}
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if(layout) {
-			if(bitmap != null && !bitmap.isRecycled()) {
+			if(drawable != null && !isRecycled()) {
 				canvas.save();
 				
 				float adjustedScale = scale * scaleAdjust;
@@ -172,7 +194,7 @@ public class GestureImageView extends View  {
 					canvas.scale(adjustedScale, adjustedScale);
 				}
 				
-				canvas.drawBitmap(bitmap,-hWidth,-hHeight,paint);
+				drawable.draw(canvas);
 				
 				canvas.restore();
 			}
@@ -197,11 +219,7 @@ public class GestureImageView extends View  {
 		animator = new Animator(this, "GestureImageViewAnimator");
 		animator.start();
 		
-		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		paint.setAntiAlias(true);
-		paint.setFilterBitmap(true);		
-		
-		if(resId >= 0 && bitmap == null) {
+		if(resId >= 0 && drawable == null) {
 			setImageResource(resId);
 		}
 		
@@ -212,7 +230,6 @@ public class GestureImageView extends View  {
 		if(animator != null) {
 			animator.play(animation);
 		}
-		
 	}
 	
 	public void animationStop() {
@@ -226,34 +243,49 @@ public class GestureImageView extends View  {
 		if(animator != null) {
 			animator.finish();
 		}
-		if(recycle && bitmap != null && !bitmap.isRecycled()) {
-			bitmap.recycle();
-			bitmap = null;
+		if(recycle && drawable != null && !isRecycled()) {
+			recycle();
+			drawable = null;
 		}
 		super.onDetachedFromWindow();
 	}
 
+	protected void initImage() {
+		this.drawable.setAlpha(alpha);
+		this.drawable.setFilterBitmap(true);
+		if(colorFilter != null) {
+			this.drawable.setColorFilter(colorFilter);
+		}
+	}
+	
 	public void setImageBitmap(Bitmap image) {
-		this.bitmap = image;
+		this.drawable = new BitmapDrawable(image);
+		initImage();
+	}
+	
+	@Override
+	public void setImageDrawable(Drawable drawable) {
+		this.drawable = drawable;
+		initImage();
 	}
 	
 	public void setImageResource(int id) {
-		if(this.bitmap != null) {
-			this.bitmap.recycle();
+		if(this.drawable != null) {
+			this.recycle();
 		}
 		if(id >= 0) {
 			this.recycle = true;
 			this.resId = id;
-			this.bitmap = BitmapFactory.decodeResource(getContext().getResources(), id);
+			setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), id));
 		}
 	}
 	
 	public int getImageWidth() {
-		return (bitmap == null) ? 0 : bitmap.getWidth();
+		return (drawable == null) ? 0 : drawable.getIntrinsicWidth();
 	}
 
 	public int getImageHeight() {
-		return  (bitmap == null) ? 0 : bitmap.getHeight();
+		return  (drawable == null) ? 0 : drawable.getIntrinsicHeight();
 	}
 	
 	public void moveBy(float x, float y) {
@@ -300,8 +332,20 @@ public class GestureImageView extends View  {
 		return y;
 	}
 
-	public Paint getPaint() {
-		return paint;
+	public boolean isStrict() {
+		return strict;
+	}
+	
+	public void setStrict(boolean strict) {
+		this.strict = strict;
+	}
+	
+	public boolean isRecycle() {
+		return recycle;
+	}
+	
+	public void setRecycle(boolean recycle) {
+		this.recycle = recycle;
 	}
 
 	public void reset() {
@@ -321,5 +365,114 @@ public class GestureImageView extends View  {
 
 	public GestureImageViewListener getGestureImageViewListener() {
 		return gestureImageViewListener;
+	}
+
+	@Override
+	public Drawable getDrawable() {
+		return drawable;
+	}
+
+	@Override
+	public void setAlpha(int alpha) {
+		this.alpha = alpha;
+		if(drawable != null) {
+			drawable.setAlpha(alpha);
+		}
+	}
+
+	@Override
+	public void setColorFilter(ColorFilter cf) {
+		this.colorFilter = cf;
+		if(drawable != null) {
+			drawable.setColorFilter(cf);
+		}
+	}
+
+	@Override
+	public void setImageURI(Uri uri) {
+		super.setImageURI(uri);
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}		
+	}
+
+	@Override
+	public Matrix getImageMatrix() {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}		
+		return super.getImageMatrix();
+	}
+
+	@Override
+	public ScaleType getScaleType() {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		return super.getScaleType();
+	}
+
+	@Override
+	public void invalidateDrawable(Drawable dr) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.invalidateDrawable(dr);
+	}
+
+	@Override
+	public int[] onCreateDrawableState(int extraSpace) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		return super.onCreateDrawableState(extraSpace);
+	}
+
+	@Override
+	public void setAdjustViewBounds(boolean adjustViewBounds) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.setAdjustViewBounds(adjustViewBounds);
+	}
+
+	@Override
+	public void setImageLevel(int level) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.setImageLevel(level);
+	}
+
+	@Override
+	public void setImageMatrix(Matrix matrix) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.setImageMatrix(matrix);
+	}
+
+	@Override
+	public void setImageState(int[] state, boolean merge) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.setImageState(state, merge);
+	}
+
+	@Override
+	public void setScaleType(ScaleType scaleType) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.setScaleType(scaleType);
+	}
+
+	@Override
+	public void setSelected(boolean selected) {
+		if(strict) {
+			throw new UnsupportedOperationException("Not supported");
+		}
+		super.setSelected(selected);
 	}
 }

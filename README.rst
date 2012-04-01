@@ -16,10 +16,16 @@ Limitations:
 ~~~~~~~~~~~~
 1. Does not support Rotation
 2. Does not support Pan and Zoom together
-3. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is not a bitmap/png/jpg)
+3. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is NOT a bitmap/png/jpg)
+4. Not all methods of ImageView class are supported (will throw UnsupportedOperationException if strict is true)
 
 Usage
 ~~~~~
+
+Notes:
+------
+1. Setting gesture-image:strict to true will result in UnsupportedOperationException if an unsupported method is called.
+2. Setting gesture-image:recycle to true will automatically reycle bitmap images when the view is destroyed.
 
 Configured as View in layout.xml
 --------------------------------
@@ -31,8 +37,9 @@ code::
     	android:layout_height="wrap_content" 
     	gesture-image:min-scale="0.1"
     	gesture-image:max-scale="10.0"
+    	gesture-image:strict="false"
+    	gesture-image:recycle="true"
     	android:src="@drawable/image"/>
-    	
     	
 Configured Programmatically
 ---------------------------
