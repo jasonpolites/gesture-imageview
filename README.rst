@@ -31,15 +31,24 @@ Configured as View in layout.xml
 --------------------------------
 code::
 
-    <com.polites.android.GestureImageView
-        android:id="@+id/image"
-        android:layout_width="fill_parent"
-    	android:layout_height="wrap_content" 
-    	android:src="@drawable/image"
-    	gesture-image:min-scale="0.1"
-    	gesture-image:max-scale="10.0"
-    	gesture-image:strict="false"
-    	gesture-image:recycle="true"/>
+	<LinearLayout 
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+	    xmlns:gesture-image="http://schemas.polites.com/android"
+	    android:id="@+id/layout"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+
+	    <com.polites.android.GestureImageView
+	        android:id="@+id/image"
+	        android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content" 
+	    	android:src="@drawable/image"
+	    	gesture-image:min-scale="0.1"
+	    	gesture-image:max-scale="10.0"
+	    	gesture-image:strict="false"
+	    	gesture-image:recycle="true"/>
+	    	
+	</LinearLayout>
     	
 Configured Programmatically
 ---------------------------
