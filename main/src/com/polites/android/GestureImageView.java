@@ -70,18 +70,23 @@ public class GestureImageView extends View  {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		
-		int orientation = getResources().getConfiguration().orientation;
-		
-		if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
-			displayHeight = MeasureSpec.getSize(heightMeasureSpec);
-			float ratio = (float) this.bitmap.getWidth() / (float) this.bitmap.getHeight();
-			displayWidth = Math.round( (float) displayHeight * ratio) ;
+		if(bitmap != null) {
+			int orientation = getResources().getConfiguration().orientation;
+			if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
+				displayHeight = MeasureSpec.getSize(heightMeasureSpec);
+				float ratio = (float) this.bitmap.getWidth() / (float) this.bitmap.getHeight();
+				displayWidth = Math.round( (float) displayHeight * ratio) ;
+			}
+			else {
+				displayWidth = MeasureSpec.getSize(widthMeasureSpec);
+				float ratio = (float) this.bitmap.getHeight() / (float) this.bitmap.getWidth();
+				displayHeight = Math.round( (float) displayWidth * ratio) ;
+			}
+			
 		}
 		else {
+			displayHeight = MeasureSpec.getSize(heightMeasureSpec);
 			displayWidth = MeasureSpec.getSize(widthMeasureSpec);
-			float ratio = (float) this.bitmap.getHeight() / (float) this.bitmap.getWidth();
-			displayHeight = Math.round( (float) displayWidth * ratio) ;
 		}
 		
 		setMeasuredDimension(displayWidth, displayHeight);
@@ -204,11 +209,16 @@ public class GestureImageView extends View  {
 	}
 	
 	public void animationStart(Animation animation) {
-		animator.play(animation);
+		if(animator != null) {
+			animator.play(animation);
+		}
+		
 	}
 	
 	public void animationStop() {
-		animator.cancel();
+		if(animator != null) {
+			animator.cancel();
+		}
 	}
 
 	@Override
