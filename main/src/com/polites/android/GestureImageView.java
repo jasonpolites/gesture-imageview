@@ -256,6 +256,7 @@ public class GestureImageView extends ImageView  {
 		if(colorFilter != null) {
 			this.drawable.setColorFilter(colorFilter);
 		}
+		redraw();
 	}
 	
 	public void setImageBitmap(Bitmap image) {
