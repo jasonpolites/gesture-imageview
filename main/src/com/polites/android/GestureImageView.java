@@ -65,7 +65,7 @@ public class GestureImageView extends ImageView  {
 
 	public GestureImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setImageResource(attrs.getAttributeResourceValue(GLOBAL_NS, "src", -1));
+		setImageResource(attrs.getAttributeResourceValue(GLOBAL_NS, "src", -1), true);
 		setMinScale(attrs.getAttributeFloatValue(LOCAL_NS, "min-scale", minScale));
 		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "max-scale", maxScale));
 		setStrict(attrs.getAttributeBooleanValue(LOCAL_NS, "strict", strict));
@@ -256,14 +256,14 @@ public class GestureImageView extends ImageView  {
 		super.onDetachedFromWindow();
 	}
 
-	protected void initImage(boolean replaced) {
+	protected void initImage(boolean original) {
 		this.drawable.setAlpha(alpha);
 		this.drawable.setFilterBitmap(true);
 		if(colorFilter != null) {
 			this.drawable.setColorFilter(colorFilter);
 		}
 		
-		if(replaced) {
+		if(!original) {
 			layout = false;
 			requestLayout();
 			redraw();
@@ -271,26 +271,32 @@ public class GestureImageView extends ImageView  {
 	}
 	
 	public void setImageBitmap(Bitmap image) {
-		boolean replaced = (drawable != null);
+		setImageBitmap(image, false);
+	}
+	
+	protected void setImageBitmap(Bitmap image, boolean original) {
 		this.drawable = new BitmapDrawable(image);
-		initImage(replaced);
+		initImage(original);
 	}
 	
 	@Override
 	public void setImageDrawable(Drawable drawable) {
-		boolean replaced = (drawable != null);
 		this.drawable = drawable;
-		initImage(replaced);
+		initImage(false);
 	}
 	
 	public void setImageResource(int id) {
+		setImageResource(id, false);
+	}
+	
+	protected void setImageResource(int id, boolean original) {
 		if(this.drawable != null) {
 			this.recycle();
 		}
 		if(id >= 0) {
 			this.recycle = true;
 			this.resId = id;
-			setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), id));
+			setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), id), original);
 		}
 	}
 	
