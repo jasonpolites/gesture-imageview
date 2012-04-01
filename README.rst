@@ -35,11 +35,11 @@ code::
         android:id="@+id/image"
         android:layout_width="fill_parent"
     	android:layout_height="wrap_content" 
+    	android:src="@drawable/image"
     	gesture-image:min-scale="0.1"
     	gesture-image:max-scale="10.0"
     	gesture-image:strict="false"
-    	gesture-image:recycle="true"
-    	android:src="@drawable/image"/>
+    	gesture-image:recycle="true"/>
     	
 Configured Programmatically
 ---------------------------
