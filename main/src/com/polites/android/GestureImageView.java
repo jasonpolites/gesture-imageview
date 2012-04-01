@@ -26,7 +26,6 @@ public class GestureImageView extends View  {
 	private float x = 0, y = 0;
 	
 	private boolean layout = false;
-	private boolean viewSet = false;
 	
 	private float scaleAdjust = 1.0f;
 	private float startingScale = 1.0f;
@@ -147,18 +146,12 @@ public class GestureImageView extends View  {
 			setOnTouchListener(gestureImageViewTouchListener);	
 			
 			layout = true;
-			viewSet = false;
 		}
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if(layout) {
-			if(!viewSet) {
-				canvas.setViewport(displayWidth, displayHeight);
-				viewSet = true;
-			}
-			
 			if(bitmap != null && !bitmap.isRecycled()) {
 				canvas.save();
 				
