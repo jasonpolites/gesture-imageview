@@ -165,14 +165,20 @@ public class GestureImageView extends ImageView  {
 
 	protected boolean isRecycled() {
 		if(drawable != null && drawable instanceof BitmapDrawable) {
-			return ((BitmapDrawable)drawable).getBitmap().isRecycled();
+			Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+			if(bitmap != null) {
+				return bitmap.isRecycled();
+			}
 		}
 		return false;
 	}
 	
 	protected void recycle() {
 		if(recycle && drawable != null && drawable instanceof BitmapDrawable) {
-			((BitmapDrawable)drawable).getBitmap().recycle();
+			Bitmap bitmap = ((BitmapDrawable)drawable).getBitmap();
+			if(bitmap != null) {
+				bitmap.recycle();
+			}
 		}
 	}
 	
