@@ -34,7 +34,7 @@ public class GestureImageView extends ImageView  {
 
 	private float scale = 1.0f;
 	private float maxScale = 5.0f;
-	private float minScale = 0.25f;
+	private float minScale = 0.75f;
 	
 	private float rotation = 0.0f;
 	
@@ -152,8 +152,8 @@ public class GestureImageView extends ImageView  {
 			y = centerY;
 			
 			gestureImageViewTouchListener = new GestureImageViewTouchListener(this, measuredWidth, measuredHeight);
-			gestureImageViewTouchListener.setMinScale(minScale);
-			gestureImageViewTouchListener.setMaxScale(maxScale);
+			gestureImageViewTouchListener.setMinScale(minScale * startingScale);
+			gestureImageViewTouchListener.setMaxScale(maxScale * startingScale);
 			
 			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
 			
