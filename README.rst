@@ -34,7 +34,6 @@ code::
 	<LinearLayout 
 	    xmlns:android="http://schemas.android.com/apk/res/android"
 	    xmlns:gesture-image="http://schemas.polites.com/android"
-	    android:id="@+id/layout"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent">
 
