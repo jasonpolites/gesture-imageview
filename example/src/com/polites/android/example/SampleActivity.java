@@ -32,7 +32,7 @@ public class SampleActivity extends Activity {
         LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         
         view = new GestureImageView(this);
-//        view.setImageResource(R.drawable.image_small);
+        view.setImageResource(R.drawable.image_small);
         view.setLayoutParams(params);
         
         ViewGroup layout = (ViewGroup) findViewById(R.id.layout);

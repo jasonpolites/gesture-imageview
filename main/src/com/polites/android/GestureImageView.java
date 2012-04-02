@@ -13,6 +13,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 public class GestureImageView extends ImageView  {
@@ -78,19 +79,30 @@ public class GestureImageView extends ImageView  {
 	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		
 		if(drawable != null) {
 			int orientation = getResources().getConfiguration().orientation;
 			if(orientation == Configuration.ORIENTATION_LANDSCAPE) {
 				displayHeight = MeasureSpec.getSize(heightMeasureSpec);
-				float ratio = (float) getImageWidth() / (float) getImageHeight();
-				displayWidth = Math.round( (float) displayHeight * ratio) ;
+				
+				if(getLayoutParams().width == LayoutParams.WRAP_CONTENT) {
+					float ratio = (float) getImageWidth() / (float) getImageHeight();
+					displayWidth = Math.round( (float) displayHeight * ratio) ;
+				}
+				else {
+					displayWidth = MeasureSpec.getSize(widthMeasureSpec);
+				}
 			}
 			else {
 				displayWidth = MeasureSpec.getSize(widthMeasureSpec);
-				float ratio = (float) getImageHeight() / (float) getImageWidth();
-				displayHeight = Math.round( (float) displayWidth * ratio) ;
+				if(getLayoutParams().height == LayoutParams.WRAP_CONTENT) {
+					float ratio = (float) getImageHeight() / (float) getImageWidth();
+					displayHeight = Math.round( (float) displayWidth * ratio) ;
+				}
+				else {
+					displayHeight = MeasureSpec.getSize(heightMeasureSpec);
+				}				
 			}
-			
 		}
 		else {
 			displayHeight = MeasureSpec.getSize(heightMeasureSpec);
