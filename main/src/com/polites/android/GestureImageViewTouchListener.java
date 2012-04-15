@@ -94,8 +94,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			}
 		});
 		
-		doubleTapDetector = new GestureDetector(doubleTapListener);
-		flingDetector = new GestureDetector(flingListener);
+		doubleTapDetector = new GestureDetector(null, doubleTapListener);
+		flingDetector = new GestureDetector(null, flingListener);
 		
 		imageListener = image.getGestureImageViewListener();
 		

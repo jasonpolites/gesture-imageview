@@ -301,7 +301,7 @@ public class GestureImageView extends ImageView  {
 	}
 
 	protected void setImageBitmap(Bitmap image, boolean original) {
-		this.drawable = new BitmapDrawable(image);
+		this.drawable = new BitmapDrawable(getResources(), image);
 		initImage(original);
 	}
 
@@ -473,10 +473,10 @@ public class GestureImageView extends ImageView  {
 						m.postRotate(orientation);
 						Bitmap rotated = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), m, true);
 						bmp.recycle();
-						setImageDrawable(new BitmapDrawable(rotated));
+						setImageDrawable(new BitmapDrawable(getResources(), rotated));
 					}
 					else {
-						setImageDrawable(new BitmapDrawable(bmp));
+						setImageDrawable(new BitmapDrawable(getResources(), bmp));
 					}
 				}
 				finally {
