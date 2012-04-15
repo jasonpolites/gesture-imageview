@@ -31,7 +31,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private float maxScale = 5.0f;
 	private float minScale = 0.75f;
-	private float doubleTapScale = maxScale/2;
+	private float doubleTapScale = maxScale/2.0f;
 	
 	private float centerX = 0;
 	private float centerY = 0;

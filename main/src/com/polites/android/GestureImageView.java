@@ -41,7 +41,7 @@ public class GestureImageView extends ImageView  {
 	private float scale = 1.0f;
 	private float maxScale = 5.0f;
 	private float minScale = 0.75f;
-	private float doubleTapScale = maxScale/2;
+	private float doubleTapScale = maxScale/2.0f;
 
 	private float rotation = 0.0f;
 
@@ -77,7 +77,7 @@ public class GestureImageView extends ImageView  {
 		setImageResource(attrs.getAttributeResourceValue(GLOBAL_NS, "src", -1), true);
 		setMinScale(attrs.getAttributeFloatValue(LOCAL_NS, "min-scale", minScale));
 		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "max-scale", maxScale));
-		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "double-tap-scale", doubleTapScale));
+		setDoubleTapScale(attrs.getAttributeFloatValue(LOCAL_NS, "double-tap-scale", doubleTapScale));
 		setStrict(attrs.getAttributeBooleanValue(LOCAL_NS, "strict", strict));
 		setRecycle(attrs.getAttributeBooleanValue(LOCAL_NS, "recycle", recycle));
 	}
