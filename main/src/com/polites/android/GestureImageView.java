@@ -3,6 +3,7 @@ package com.polites.android;
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -40,6 +41,7 @@ public class GestureImageView extends ImageView  {
 	private float scale = 1.0f;
 	private float maxScale = 5.0f;
 	private float minScale = 0.75f;
+	private float doubleTapScale = maxScale/2.0f;
 
 	private float rotation = 0.0f;
 
@@ -75,6 +77,7 @@ public class GestureImageView extends ImageView  {
 		setImageResource(attrs.getAttributeResourceValue(GLOBAL_NS, "src", -1), true);
 		setMinScale(attrs.getAttributeFloatValue(LOCAL_NS, "min-scale", minScale));
 		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "max-scale", maxScale));
+		setDoubleTapScale(attrs.getAttributeFloatValue(LOCAL_NS, "double-tap-scale", doubleTapScale));
 		setStrict(attrs.getAttributeBooleanValue(LOCAL_NS, "strict", strict));
 		setRecycle(attrs.getAttributeBooleanValue(LOCAL_NS, "recycle", recycle));
 	}
@@ -172,6 +175,7 @@ public class GestureImageView extends ImageView  {
 			gestureImageViewTouchListener = new GestureImageViewTouchListener(this, measuredWidth, measuredHeight);
 			gestureImageViewTouchListener.setMinScale(minScale * startingScale);
 			gestureImageViewTouchListener.setMaxScale(maxScale * startingScale);
+			gestureImageViewTouchListener.setDoubleTapScale(doubleTapScale * startingScale);
 
 			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
 
@@ -375,6 +379,13 @@ public class GestureImageView extends ImageView  {
 		this.maxScale = max;
 		if(gestureImageViewTouchListener != null) {
 			gestureImageViewTouchListener.setMaxScale(max);
+		}
+	}
+	
+	public void setDoubleTapScale(float scale) {
+		this.doubleTapScale = scale;
+		if(gestureImageViewTouchListener != null) {
+			gestureImageViewTouchListener.setDoubleTapScale(scale);
 		}
 	}
 
