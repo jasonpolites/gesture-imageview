@@ -30,7 +30,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private float boundaryBottom = 0;
 	
 	private float maxScale = 5.0f;
-	private float minScale = 0.25f;
+	private float minScale = 0.75f;
+	private float doubleTapScale = maxScale/2;
 	
 	private float centerX = 0;
 	private float centerY = 0;
@@ -83,7 +84,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		next.x = image.getX();
 		next.y = image.getY();
 		
-		doubleTapListener = new DoubleTapListener(image);
+		doubleTapListener = new DoubleTapListener(image, this);
 		flingListener = new FlingListener();
 		flingAnimation = new FlingAnimation();
 		
@@ -121,8 +122,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		
 		if(doubleTapDetector.onTouchEvent(event)) {
 			initialDistance = 0;
-			lastScale = startingScale;
-			currentScale = startingScale;
+			lastScale = image.getScale();
+			currentScale = image.getScale();
 			next.x = image.getX();
 			next.y = image.getY();
 			calculateBoundaries();
@@ -291,6 +292,10 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	}
 	
 	
+	public float getStartingScale() {
+		return startingScale;
+	}
+	
 	public float getMaxScale() {
 		return maxScale;
 	}
@@ -305,6 +310,14 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 
 	public void setMinScale(float minScale) {
 		this.minScale = minScale;
+	}
+	
+	public float getDoubleTapScale() {
+		return doubleTapScale;
+	}
+	
+	public void setDoubleTapScale(float doubleTapScale) {
+		this.doubleTapScale = doubleTapScale;
 	}
 
 	protected void boundCoordinates() {
