@@ -353,9 +353,9 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private boolean coordinatesOutsideDrawable(float x, float y) {
 		Rect r = image.getDrawable().getBounds();
-		return 	y < (centerY + r.top 	* currentScale) ||
-				y > (centerY + r.bottom * currentScale) ||
-				x < (centerX + r.left 	* currentScale) ||
-				x > (centerX + r.right 	* currentScale);
+		return  y < (centerY + (r.top    * currentScale)) ||
+				y > (centerY + (r.bottom * currentScale)) ||
+				x < (centerX + (r.left   * currentScale)) ||
+				x > (centerX + (r.right  * currentScale));
 	}
 }
