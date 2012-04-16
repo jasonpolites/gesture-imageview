@@ -174,7 +174,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			
 			if(imageListener != null) {
 				imageListener.onTouch(last.x, last.y);
-				touchDownOutsideDrawable = coordinatesOutsideDrawable(last.x, last.x);
+				touchDownOutsideDrawable = coordinatesOutsideDrawable(last.x, last.y);
 			}
 			
 			touched = true;
