@@ -55,8 +55,8 @@ public class GestureImageView extends ImageView  {
 	private boolean recycle = false;
 	private boolean strict = false;
 
-	private int displayHeight;
-	private int displayWidth;
+	protected int displayHeight;
+	protected int displayWidth;
 
 	private int alpha = 255;
 	private ColorFilter colorFilter;
