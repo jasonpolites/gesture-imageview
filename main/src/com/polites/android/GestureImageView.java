@@ -161,6 +161,21 @@ public class GestureImageView extends ImageView  {
 				startingScale = (float) displayWidth / (float) imageWidth;
 			}
 
+			switch(super.getScaleType()) {
+			case CENTER:
+				startingScale = Math.max(startingScale, 1.0f);
+				startingScale = Math.min(startingScale, 1.0f);
+				break;
+
+			case CENTER_CROP:
+				startingScale = Math.max(startingScale, 1.0f);
+				break;
+
+			case CENTER_INSIDE:
+				startingScale = Math.min(startingScale, 1.0f);
+				break;
+			}
+
 			scaleAdjust = startingScale;
 
 			this.centerX = (float)measuredWidth / 2.0f;
@@ -564,8 +579,16 @@ public class GestureImageView extends ImageView  {
 
 	@Override
 	public void setScaleType(ScaleType scaleType) {
-		if(strict) {
-			throw new UnsupportedOperationException("Not supported");
+		if(scaleType == ScaleType.CENTER ||
+				scaleType == ScaleType.CENTER_CROP ||
+				scaleType == ScaleType.CENTER_INSIDE) {
+
+			super.setScaleType(scaleType);
+		}
+		else {
+			if(strict) {
+				throw new UnsupportedOperationException("ScaleType not supported");
+			}
 		}
 	}
 
