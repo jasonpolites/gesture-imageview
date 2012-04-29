@@ -1,3 +1,24 @@
+/*
+ * Copyright (c) 2012 Jason Polites
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
 package com.polites.android;
 
 import android.graphics.PointF;
@@ -31,6 +52,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private float maxScale = 5.0f;
 	private float minScale = 0.25f;
+	private float fitScale = 1.0f;
 	
 	private float centerX = 0;
 	private float centerY = 0;
@@ -94,8 +116,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			}
 		});
 		
-		doubleTapDetector = new GestureDetector(doubleTapListener);
-		flingDetector = new GestureDetector(flingListener);
+		doubleTapDetector = new GestureDetector(image.getContext(), doubleTapListener);
+		flingDetector = new GestureDetector(image.getContext(), flingListener);
 		
 		imageListener = image.getGestureImageViewListener();
 		
@@ -146,8 +168,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			boundCoordinates();
 			
 			if(!canDragX && !canDragY) {
-				currentScale = startingScale;
-				lastScale = currentScale;
+				currentScale = fitScale;
+				lastScale = fitScale;
 			}
 			
 			image.setScale(currentScale);
@@ -305,6 +327,10 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 
 	public void setMinScale(float minScale) {
 		this.minScale = minScale;
+	}
+	
+	protected void setFitScale(float fitScale) {
+		this.fitScale = fitScale;
 	}
 
 	protected void boundCoordinates() {

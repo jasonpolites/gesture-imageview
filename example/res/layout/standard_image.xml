@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:gesture-image="http://schemas.polites.com/android"
+    android:id="@+id/layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:background="#000000">
+    <com.polites.android.GestureImageView
+        android:id="@+id/image"
+        android:layout_width="fill_parent"
+    	android:layout_height="fill_parent" 
+    	gesture-image:min-scale="0.75"
+    	gesture-image:max-scale="10.0"
+    	android:src="@drawable/image"/>
+</LinearLayout>

@@ -9,7 +9,7 @@ import android.os.Message;
 import android.view.ViewGroup;
 import android.widget.LinearLayout.LayoutParams;
 
-public class SampleActivity extends Activity {
+public class DoubleImage extends Activity {
 	
 	private GestureImageView view;
 	private static final int IMAGE_LOAD = 10001;
@@ -27,12 +27,11 @@ public class SampleActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.double_image);
         
-        LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
         
         view = new GestureImageView(this);
-        view.setImageResource(R.drawable.image_small);
         view.setLayoutParams(params);
         
         ViewGroup layout = (ViewGroup) findViewById(R.id.layout);

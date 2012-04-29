@@ -10,14 +10,30 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".SampleActivity"
+            android:name=".Main"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="StandardImageProgrammatic"></activity>
+        <activity android:name="StandardImageXML"></activity>
+        <activity android:name="DoubleImage"></activity>
+        <activity android:name="ScaleTypeCenter"></activity>
+        <activity android:name="ScaleTypeCenterCrop"></activity>
+        <activity android:name="ScaleTypeCenterInside"></activity>
+        <activity android:name="ScaleTypeCenterSmall"></activity>
+        <activity android:name="ScaleTypeCenterCropSmall"></activity>
+        <activity android:name="ScaleTypeCenterInsideSmall"></activity> 
+        <activity android:name="ScaleTypeCenterSquare"></activity> 
+		<activity android:name="ScaleTypeCenterCropSquare"></activity> 
+		<activity android:name="ScaleTypeCenterInsideSquare"></activity> 
+		<activity android:name="ScaleTypeCenterPortrait"></activity> 
+		<activity android:name="ScaleTypeCenterCropPortrait"></activity> 
+		<activity android:name="ScaleTypeCenterInsidePortrait"></activity> 
+        
+        
     </application>
 
 </manifest>
