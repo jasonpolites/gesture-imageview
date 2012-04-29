@@ -409,11 +409,11 @@ public class GestureImageView extends ImageView  {
 		return scaleAdjust;
 	}
 
-	public float getX() {
+	public float getImageX() {
 		return x;
 	}
 
-	public float getY() {
+	public float getImageY() {
 		return y;
 	}
 

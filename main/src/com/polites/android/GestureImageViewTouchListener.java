@@ -102,8 +102,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		boundaryLeft = 0;
 		boundaryTop = 0;
 		
-		next.x = image.getX();
-		next.y = image.getY();
+		next.x = image.getImageX();
+		next.y = image.getImageY();
 		
 		doubleTapListener = new DoubleTapListener(image);
 		flingListener = new FlingListener();
@@ -145,8 +145,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			initialDistance = 0;
 			lastScale = startingScale;
 			currentScale = startingScale;
-			next.x = image.getX();
-			next.y = image.getY();
+			next.x = image.getImageX();
+			next.y = image.getImageY();
 			calculateBoundaries();
 		}
 		
@@ -257,8 +257,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 					touched = true;
 					last.x = event.getX();
 					last.y = event.getY();
-					next.x = image.getX();
-					next.y = image.getY();
+					next.x = image.getImageX();
+					next.y = image.getImageY();
 				}
 				else if(!multiTouch) {
 					if(handleDrag(event.getX(), event.getY())) {
