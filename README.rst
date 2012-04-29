@@ -5,14 +5,6 @@ This is a simple Android View class which provides basic pinch and zoom capabili
 
 Can be used as a replacement for a standard ImageView when you want to include pinch and zoom.
 
-What's New!
-~~~~~~~~~~~
-
-- Added support for CENTER, CENTER_INSIDE and CENTER_CROP scale types
-- Added support for custom OnTouchListener on GestureImageView
-- Fixed NPE when no drawable set on view
-- Fixed/improved calculation of scale limits
-
 Features:
 ~~~~~~~~~
 1. Pinch zoom in place (i.e. zoom occurs from point of touch)
@@ -26,6 +18,14 @@ Limitations:
 2. Does not support Pan and Zoom together
 3. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is NOT a bitmap/png/jpg)
 4. Not all methods of ImageView class are supported (will throw UnsupportedOperationException if strict is true)
+
+What's New!
+~~~~~~~~~~~
+
+- Added support for CENTER, CENTER_INSIDE and CENTER_CROP scale types
+- Added support for custom OnTouchListener on GestureImageView
+- Fixed NPE when no drawable set on view
+- Fixed/improved calculation of scale limits
 
 Usage
 ~~~~~
