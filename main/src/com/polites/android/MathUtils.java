@@ -62,8 +62,8 @@ public class MathUtils {
 		float py = p1.y;
 		float ox = p2.x;
 		float oy = p2.y;
-		p1.x = (float) (Math.cos(angle) * (px-ox) - Math.sin(angle) * (py-oy) + ox);
-		p1.y = (float) (Math.sin(angle) * (px-ox) + Math.cos(angle) * (py-oy) + oy);
+		p1.x = (FloatMath.cos(angle) * (px-ox) - FloatMath.sin(angle) * (py-oy) + ox);
+		p1.y = (FloatMath.sin(angle) * (px-ox) + FloatMath.cos(angle) * (py-oy) + oy);
 	}
 	
 	public static float angle(PointF p1, PointF p2) {
