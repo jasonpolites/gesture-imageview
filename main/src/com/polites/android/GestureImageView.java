@@ -38,6 +38,8 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
@@ -86,6 +88,8 @@ public class GestureImageView extends ImageView  {
 
 	private GestureImageViewListener gestureImageViewListener;
 	private GestureImageViewTouchListener gestureImageViewTouchListener;
+	
+	private OnTouchListener customOnTouchListener;
 
 	public GestureImageView(Context context, AttributeSet attrs, int defStyle) {
 		this(context, attrs);
@@ -188,7 +192,16 @@ public class GestureImageView extends ImageView  {
 
 			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
 
-			setOnTouchListener(gestureImageViewTouchListener);	
+			super.setOnTouchListener(new OnTouchListener() {
+				
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					if(customOnTouchListener != null) {
+						customOnTouchListener.onTouch(v, event);
+					}
+					return gestureImageViewTouchListener.onTouch(v, event);
+				}
+			});	
 
 			layout = true;
 		}
@@ -596,5 +609,10 @@ public class GestureImageView extends ImageView  {
 			throw new UnsupportedOperationException("Not supported");
 		}
 		super.setSelected(selected);
+	}
+
+	@Override
+	public void setOnTouchListener(OnTouchListener l) {
+		this.customOnTouchListener = l;
 	}
 }
