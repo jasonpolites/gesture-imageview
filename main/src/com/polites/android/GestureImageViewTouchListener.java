@@ -137,8 +137,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		
 		if(doubleTapDetector.onTouchEvent(event)) {
 			initialDistance = 0;
-			lastScale = startingScale;
-			currentScale = startingScale;
+			lastScale = image.getScale();;
+			currentScale = image.getScale();;
 			next.x = image.getImageX();
 			next.y = image.getImageY();
 			calculateBoundaries();
