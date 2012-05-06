@@ -513,6 +513,10 @@ public class GestureImageView extends ImageView  {
 					if(in != null) {
 						in.close();
 					}
+					
+					if(cur != null) {
+						cur.close();
+					}
 				}
 			}
 			catch (Exception e) {
