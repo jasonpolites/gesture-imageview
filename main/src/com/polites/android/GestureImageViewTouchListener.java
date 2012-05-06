@@ -33,7 +33,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private final VectorF scaleVector = new VectorF();
 	private final VectorF pinchVector = new VectorF();
 	
-	boolean touched = false;
+	private boolean touched = false;
+	private boolean inZoom = false;
 	
 	private float initialDistance;
 	private float lastScale = 1.0f;
@@ -46,7 +47,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private float maxScale = 5.0f;
 	private float minScale = 0.25f;
-	private float fitScale = 1.0f;
+	private float fitScaleHorizontal = 1.0f;
+	private float fitScaleVertical = 1.0f;
 	
 	private float centerX = 0;
 	private float centerY = 0;
@@ -67,11 +69,13 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private DoubleTapListener doubleTapListener;
 	private FlingListener flingListener;
 	private FlingAnimation flingAnimation;
+	private ZoomAnimation zoomAnimation;
+	private MoveAnimation moveAnimation;
 	private GestureDetector doubleTapDetector;
 	private GestureDetector flingDetector;
 	private GestureImageViewListener imageListener;
 
-	public GestureImageViewTouchListener(GestureImageView image, int displayWidth, int displayHeight) {
+	public GestureImageViewTouchListener(final GestureImageView image, int displayWidth, int displayHeight) {
 		super();
 		
 		this.image = image;
@@ -99,14 +103,41 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		next.x = image.getImageX();
 		next.y = image.getImageY();
 		
-		doubleTapListener = new DoubleTapListener(image);
+		doubleTapListener = new DoubleTapListener();
 		flingListener = new FlingListener();
 		flingAnimation = new FlingAnimation();
+		zoomAnimation = new ZoomAnimation();
+		moveAnimation = new MoveAnimation();
 		
 		flingAnimation.setListener(new FlingAnimationListener() {
 			@Override
 			public void onMove(float x, float y) {
 				handleDrag(current.x + x, current.y + y);
+			}
+		});
+		
+		zoomAnimation.setZoom(2.0f);
+		zoomAnimation.setZoomAnimationListener(new ZoomAnimationListener() {
+			@Override
+			public void onZoom(float scale, float x, float y) {
+				if(scale <= maxScale && scale >= minScale) {
+					handleScale(scale, x, y);
+				}
+			}
+
+			@Override
+			public void onComplete() {
+				inZoom = false;
+				handleUp();
+			}
+		});
+		
+		moveAnimation.setMoveAnimationListener(new MoveAnimationListener() {
+			
+			@Override
+			public void onMove(float x, float y) {
+				image.setPosition(x, y);
+				image.redraw();
 			}
 		});
 		
@@ -124,145 +155,195 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		image.animationStart(flingAnimation);
 	}
 	
-	private void stopFling() {
+	private void startZoom(MotionEvent e) {
+		inZoom = true;
+		zoomAnimation.reset();
+		
+		float zoomTo = 1.0f;
+		
+		if(currentScale > fitScaleHorizontal) {
+			zoomTo = fitScaleHorizontal / currentScale;
+			
+		}
+		else {
+			zoomTo = fitScaleVertical / currentScale;
+			zoomAnimation.setZoom(zoomTo);
+		}
+		
+		zoomAnimation.setZoom(zoomTo);
+		zoomAnimation.setTouchX(e.getX());
+		zoomAnimation.setTouchY(e.getY());
+		
+		image.animationStart(zoomAnimation);		
+	}
+	
+	private void startMove(float x, float y) {
+		moveAnimation.reset();
+		moveAnimation.setTargetX(x);
+		moveAnimation.setTargetY(y);
+		image.animationStart(moveAnimation);	
+	}
+	
+	private void stopAnimations() {
 		image.animationStop();
 	}
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-		
-		if(event.getPointerCount() == 1 && flingDetector.onTouchEvent(event)) {
-			startFling();
-		}
-		
-		if(doubleTapDetector.onTouchEvent(event)) {
-			initialDistance = 0;
-			lastScale = startingScale;
-			currentScale = startingScale;
-			next.x = image.getImageX();
-			next.y = image.getImageY();
-			calculateBoundaries();
-		}
-		
-		if(event.getAction() == MotionEvent.ACTION_UP) {
+
+		if(!inZoom) {
 			
-			multiTouch = false;
-			
-			initialDistance = 0;
-			lastScale = currentScale;
-			
-			if(!canDragX) {
-				next.x = centerX;
+			if(event.getPointerCount() == 1 && flingDetector.onTouchEvent(event)) {
+				startFling();
 			}
-			
-			if(!canDragY) {
-				next.y = centerY;
+			 
+			if(doubleTapDetector.onTouchEvent(event)) {
+				startZoom(event);
+				
+//				initialDistance = 0;
+//				lastScale = startingScale;
+//				currentScale = startingScale;
+//				next.x = image.getImageX();
+//				next.y = image.getImageY();
+//				calculateBoundaries();
 			}
-			
-			boundCoordinates();
-			
-			if(!canDragX && !canDragY) {
-				currentScale = fitScale;
-				lastScale = fitScale;
+			else if(event.getAction() == MotionEvent.ACTION_UP) {
+				handleUp();
 			}
-			
-			image.setScale(currentScale);
-			image.setPosition(next.x, next.y);
-			
-			if(imageListener != null) {
-				imageListener.onScale(currentScale);
-				imageListener.onPosition(next.x, next.y);
-			}	
-			
-			image.redraw();
-		}
-		else if(event.getAction() == MotionEvent.ACTION_DOWN) {
-			stopFling();
-			
-			last.x = event.getX();
-			last.y = event.getY();
-			
-			if(imageListener != null) {
-				imageListener.onTouch(last.x, last.y);
+			else if(event.getAction() == MotionEvent.ACTION_DOWN) {
+				stopAnimations();
+				
+				last.x = event.getX();
+				last.y = event.getY();
+				
+				if(imageListener != null) {
+					imageListener.onTouch(last.x, last.y);
+				}
+				
+				touched = true;
 			}
-			
-			touched = true;
-		}
-		else if(event.getAction() == MotionEvent.ACTION_MOVE) {
-			if(event.getPointerCount() > 1) {
-				multiTouch = true;
-				if(initialDistance > 0) {
-					
-					pinchVector.set(event);
-					pinchVector.calculateLength();
-					
-					float distance = pinchVector.length;
-					
-					if(initialDistance != distance) {
+			else if(event.getAction() == MotionEvent.ACTION_MOVE) {
+				if(event.getPointerCount() > 1) {
+					multiTouch = true;
+					if(initialDistance > 0) {
 						
-						// We have moved (scaled)
-						currentScale = (distance / initialDistance) * lastScale;
+						pinchVector.set(event);
+						pinchVector.calculateLength();
 						
-						if(currentScale > maxScale) {
-							currentScale = maxScale;	
+						float distance = pinchVector.length;
+						
+						if(initialDistance != distance) {
+							
+							// We have moved (scaled)
+							float newScale = (distance / initialDistance) * lastScale;
+							
+							if(newScale <= maxScale) {
+								scaleVector.length *= newScale;
+								
+								scaleVector.calculateEndPoint();
+								
+								scaleVector.length /= newScale;
+								
+								float newX = scaleVector.end.x;
+								float newY = scaleVector.end.y;
+								
+								handleScale(newScale, newX, newY);
+							}
 						}
-						else if (currentScale < minScale) {
-							currentScale = minScale;
-						}
+					}
+					else {
+						initialDistance = MathUtils.distance(event);
 						
-						calculateBoundaries();
+						MathUtils.midpoint(event, midpoint);
 						
-						scaleVector.length *= currentScale;
+						scaleVector.setStart(midpoint);
+						scaleVector.setEnd(next);
 						
-						scaleVector.calculateEndPoint();
+						scaleVector.calculateLength();
+						scaleVector.calculateAngle();
 						
-						scaleVector.length /= currentScale;
-						
-						next.x = scaleVector.end.x;
-						next.y = scaleVector.end.y;
-						
-						image.setScale(currentScale);
-						image.setPosition(next.x, next.y);
-						
-						if(imageListener != null) {
-							imageListener.onScale(currentScale);
-							imageListener.onPosition(next.x, next.y);
-						}
-						
-						image.redraw();
+						scaleVector.length /= lastScale;
 					}
 				}
 				else {
-					initialDistance = MathUtils.distance(event);
-					
-					MathUtils.midpoint(event, midpoint);
-					
-					scaleVector.setStart(midpoint);
-					scaleVector.setEnd(next);
-					
-					scaleVector.calculateLength();
-					scaleVector.calculateAngle();
-					
-					scaleVector.length /= lastScale;
-				}
-			}
-			else {
-				if(!touched) {
-					touched = true;
-					last.x = event.getX();
-					last.y = event.getY();
-					next.x = image.getImageX();
-					next.y = image.getImageY();
-				}
-				else if(!multiTouch) {
-					if(handleDrag(event.getX(), event.getY())) {
-						image.redraw();
+					if(!touched) {
+						touched = true;
+						last.x = event.getX();
+						last.y = event.getY();
+						next.x = image.getImageX();
+						next.y = image.getImageY();
+					}
+					else if(!multiTouch) {
+						if(handleDrag(event.getX(), event.getY())) {
+							image.redraw();
+						}
 					}
 				}
 			}
 		}
 		
 		return true;
+	}
+	
+	protected void handleUp() {
+		
+		multiTouch = false;
+		
+		initialDistance = 0;
+		lastScale = currentScale;
+		
+		if(!canDragX) {
+			next.x = centerX;
+		}
+		
+		if(!canDragY) {
+			next.y = centerY;
+		}
+		
+		boundCoordinates();
+		
+		if(!canDragX && !canDragY) {
+			currentScale = fitScaleHorizontal;
+			lastScale = fitScaleHorizontal;
+		}
+
+		image.setScale(currentScale);
+		image.setPosition(next.x, next.y);
+		
+//		startMove(next.x, next.y);
+		
+		if(imageListener != null) {
+			imageListener.onScale(currentScale);
+			imageListener.onPosition(next.x, next.y);
+		}	
+		
+		image.redraw();
+	}
+	
+	protected void handleScale(float scale, float x, float y) {
+		
+		currentScale = scale;
+		next.x = x;
+		next.y = y;
+		
+		if(currentScale > maxScale) {
+			currentScale = maxScale;	
+		}
+		else if (currentScale < minScale) {
+			currentScale = minScale;
+		}
+		
+		calculateBoundaries();
+		
+		image.setScale(currentScale);
+		image.setPosition(next.x, next.y);
+		
+		if(imageListener != null) {
+			imageListener.onScale(currentScale);
+			imageListener.onPosition(next.x, next.y);
+		}
+		
+		image.redraw();
 	}
 	
 	protected boolean handleDrag(float x, float y) {
@@ -323,8 +404,12 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		this.minScale = minScale;
 	}
 	
-	protected void setFitScale(float fitScale) {
-		this.fitScale = fitScale;
+	protected void setFitScaleHorizontal(float fitScale) {
+		this.fitScaleHorizontal = fitScale;
+	}
+
+	protected void setFitScaleVertical(float fitScaleVertical) {
+		this.fitScaleVertical = fitScaleVertical;
 	}
 
 	protected void boundCoordinates() {

@@ -15,17 +15,12 @@
  */
 package com.polites.android;
 
-import android.view.GestureDetector.SimpleOnGestureListener;
-import android.view.MotionEvent;
 
-public class DoubleTapListener extends SimpleOnGestureListener {
-	
-	public DoubleTapListener() {
-		super();
-	}
-
-	@Override
-	public boolean onDoubleTap(MotionEvent e) {
-		return true;
-	}
+/**
+ * @author Jason Polites
+ *
+ */
+public interface ZoomAnimationListener {
+	public void onZoom(float scale, float x, float y);
+	public void onComplete();
 }

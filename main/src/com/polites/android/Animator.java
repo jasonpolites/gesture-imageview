@@ -48,7 +48,7 @@ public class Animator extends Thread {
 				
 				while(active) {
 					try {
-						if(view.waitForDraw(64)) { // 30Htz
+						if(view.waitForDraw(32)) { // 30Htz
 							break;
 						}
 					}

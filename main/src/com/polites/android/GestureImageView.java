@@ -57,7 +57,8 @@ public class GestureImageView extends ImageView  {
 	private float scale = 1.0f;
 	private float maxScale = 5.0f;
 	private float minScale = 0.75f;
-	private float fitScale = 1.0f;
+	private float fitScaleHorizontal = 1.0f;
+	private float fitScaleVertical = 1.0f;
 	private float rotation = 0.0f;
 
 	private int lastOrientation = -1;
@@ -180,9 +181,11 @@ public class GestureImageView extends ImageView  {
 			y = centerY;
 
 			gestureImageViewTouchListener = new GestureImageViewTouchListener(this, measuredWidth, measuredHeight);
-			gestureImageViewTouchListener.setMinScale(minScale * fitScale);
+			gestureImageViewTouchListener.setMinScale(minScale * fitScaleHorizontal);
 			gestureImageViewTouchListener.setMaxScale(maxScale * startingScale);
-			gestureImageViewTouchListener.setFitScale(fitScale);
+			gestureImageViewTouchListener.setFitScaleHorizontal(fitScaleHorizontal);
+			gestureImageViewTouchListener.setFitScaleVertical(fitScaleVertical);
+			
 
 			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
 
@@ -202,7 +205,8 @@ public class GestureImageView extends ImageView  {
 	}
 	
 	protected void computeCropScale(int imageWidth, int imageHeight, int measuredWidth, int measuredHeight) {
-		fitScale = Math.min((float) measuredHeight / (float) imageHeight, (float) measuredWidth/ (float) imageWidth);
+		fitScaleHorizontal = Math.min((float) measuredHeight / (float) imageHeight, (float) measuredWidth/ (float) imageWidth);
+		fitScaleVertical = Math.max((float) measuredHeight / (float) imageHeight, (float) measuredWidth/ (float) imageWidth);
 	}
 	
 	protected void computeStartingScale(int imageWidth, int imageHeight, int measuredWidth, int measuredHeight) {
@@ -222,7 +226,7 @@ public class GestureImageView extends ImageView  {
 				
 			case CENTER_INSIDE: 
 				// Scale the image uniformly (maintain the image's aspect ratio) so that both dimensions (width and height) of the image will be equal to or less than the corresponding dimension of the view (minus padding). 
-				startingScale = fitScale;
+				startingScale = fitScaleHorizontal;
 				break;
 		}
 	}
@@ -397,7 +401,7 @@ public class GestureImageView extends ImageView  {
 	public void setMinScale(float min) {
 		this.minScale = min;
 		if(gestureImageViewTouchListener != null) {
-			gestureImageViewTouchListener.setMinScale(min * fitScale);
+			gestureImageViewTouchListener.setMinScale(min * fitScaleHorizontal);
 		}
 	}
 

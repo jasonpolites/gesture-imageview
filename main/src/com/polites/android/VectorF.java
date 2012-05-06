@@ -49,11 +49,15 @@ public class VectorF {
 		this.end.y = event.getY(1);
 	}
 	
-	public void calculateLength() {
+	public float calculateLength() {
 		length = MathUtils.distance(start, end);
+		return length;
 	}
 	
-	public void calculateAngle() {
+	public float calculateAngle() {
 		angle = MathUtils.angle(start, end);
+		return angle;
 	}
+	
+	
 }
