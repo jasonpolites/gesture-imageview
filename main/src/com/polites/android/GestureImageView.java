@@ -366,7 +366,7 @@ public class GestureImageView extends ImageView  {
 		if(id >= 0) {
 			this.recycle = true;
 			this.resId = id;
-			setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), id), original);
+			setImageDrawable(getContext().getResources().getDrawable(id));
 		}
 	}
 
