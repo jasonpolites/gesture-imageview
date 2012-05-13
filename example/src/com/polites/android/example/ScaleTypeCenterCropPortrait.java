@@ -1,9 +1,8 @@
 package com.polites.android.example;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class ScaleTypeCenterCropPortrait extends Activity {
+public class ScaleTypeCenterCropPortrait extends ExampleActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);

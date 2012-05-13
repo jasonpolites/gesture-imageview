@@ -39,7 +39,7 @@ public class ZoomAnimation implements Animation {
 	private float yDiff;
 	private float scaleDiff;
 	
-	private long animationLengthMS = 300;
+	private long animationLengthMS = 200;
 	private long totalTime = 0;
 	
 	private ZoomAnimationListener zoomAnimationListener;
@@ -52,32 +52,38 @@ public class ZoomAnimation implements Animation {
 		if(firstFrame) {
 			firstFrame = false;
 			
-			// Calculate destination for midpoint
-			VectorF vector = new VectorF();
-			
 			startX = view.getImageX();
 			startY = view.getImageY();
 			startScale = view.getScale();
-			
-			// Set the touch point as start because we want to move the end
-			vector.setStart(new PointF(touchX, touchY));
-			vector.setEnd(new PointF(startX, startY));
-			
-			vector.calculateAngle();
-			
-			// Get the current length
-			float length = vector.calculateLength();
-			
-			// Multiply length by zoom to get the new length
-			vector.length = length*zoom;
-			
-			// Now deduce the new endpoint
-			vector.calculateEndPoint();
-			
-			xDiff = vector.end.x - startX;
-			yDiff = vector.end.y - startY;
-			
 			scaleDiff = (zoom * startScale) - startScale;
+			
+			if(scaleDiff > 0) {
+				// Calculate destination for midpoint
+				VectorF vector = new VectorF();
+				
+				// Set the touch point as start because we want to move the end				
+				vector.setStart(new PointF(touchX, touchY));
+				vector.setEnd(new PointF(startX, startY));				
+			
+				vector.calculateAngle();
+				
+				// Get the current length
+				float length = vector.calculateLength();
+				
+				// Multiply length by zoom to get the new length
+				vector.length = length*zoom;
+				
+				// Now deduce the new endpoint
+				vector.calculateEndPoint();
+				
+				xDiff = vector.end.x - startX;
+				yDiff = vector.end.y - startY;
+			}
+			else {
+				// Zoom out to center
+				xDiff = view.getCenterX() - startX;
+				yDiff = view.getCenterY() - startY;
+			}
 		}
 		
 		totalTime += time;
@@ -92,10 +98,6 @@ public class ZoomAnimation implements Animation {
 				float newX = (ratio * xDiff) + startX;
 				float newY = (ratio * yDiff) + startY;
 				
-//				view.setPosition(newX, newY);
-//				view.setScale(newScale);
-//				view.redraw();
-				
 				if(zoomAnimationListener != null) {
 					zoomAnimationListener.onZoom(newScale, newX, newY);
 				}
@@ -108,11 +110,7 @@ public class ZoomAnimation implements Animation {
 			float newScale = scaleDiff + startScale;
 			float newX = xDiff + startX;
 			float newY = yDiff + startY;
-			
-//			view.setPosition(newX, newY);
-//			view.setScale(newScale);
-//			view.redraw();
-			
+
 			if(zoomAnimationListener != null) {
 				zoomAnimationListener.onZoom(newScale, newX, newY);
 				zoomAnimationListener.onComplete();

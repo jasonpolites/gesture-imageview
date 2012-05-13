@@ -15,15 +15,17 @@
  */
 package com.polites.android;
 
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
 
-/**
- * @author Jason Polites
- *
- */
-public interface FlingAnimationListener {
-
-	public void onMove(float x, float y);
+public class SingleTapListener extends SimpleOnGestureListener {
 	
-	public void onComplete();
+	public SingleTapListener() {
+		super();
+	}
 	
+	@Override
+	public boolean onSingleTapUp(MotionEvent e) {
+		return true;
+	}
 }

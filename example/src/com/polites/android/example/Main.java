@@ -37,6 +37,7 @@ public class Main extends ListActivity {
 	static final String[] listItems = { 
 		"Single Image XML Layout", 
 		"Single Image Programmatic", 
+		"Single Image Programmatic with onClick event", 
 		"Double Image (With delayed load)", 
 		"ScaleType CENTER Large", 
 		"ScaleType CENTER_CROP Large", 
@@ -55,6 +56,7 @@ public class Main extends ListActivity {
 	static final Class<?>[] actvities = { 
 		StandardImageXML.class,
 		StandardImageProgrammatic.class,
+		StandardImageProgrammaticWithOnClick.class,
 		DoubleImage.class,
 		ScaleTypeCenter.class,
 		ScaleTypeCenterCrop.class,

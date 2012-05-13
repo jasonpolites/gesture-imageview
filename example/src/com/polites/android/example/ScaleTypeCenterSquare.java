@@ -1,9 +1,8 @@
 package com.polites.android.example;
 
-import android.app.Activity;
 import android.os.Bundle;
 
-public class ScaleTypeCenterSquare extends Activity {
+public class ScaleTypeCenterSquare extends ExampleActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);

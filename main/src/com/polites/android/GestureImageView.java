@@ -61,8 +61,6 @@ public class GestureImageView extends ImageView  {
 	private float fitScaleVertical = 1.0f;
 	private float rotation = 0.0f;
 
-	private int lastOrientation = -1;
-
 	private float centerX;
 	private float centerY;
 
@@ -79,12 +77,14 @@ public class GestureImageView extends ImageView  {
 	private int alpha = 255;
 	private ColorFilter colorFilter;
 
-	private int orientation;
+	private int deviceOrientation = -1;
+	private int imageOrientation;
 
 	private GestureImageViewListener gestureImageViewListener;
 	private GestureImageViewTouchListener gestureImageViewTouchListener;
 	
 	private OnTouchListener customOnTouchListener;
+	private OnClickListener onClickListener;
 
 	public GestureImageView(Context context, AttributeSet attrs, int defStyle) {
 		this(context, attrs);
@@ -92,8 +92,6 @@ public class GestureImageView extends ImageView  {
 
 	public GestureImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		
-		setImageResource(attrs.getAttributeResourceValue(GLOBAL_NS, "src", -1), true);
 		
 		String scaleType = attrs.getAttributeValue(GLOBAL_NS, "scaleType");
 		
@@ -105,11 +103,14 @@ public class GestureImageView extends ImageView  {
 		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "max-scale", maxScale));
 		setStrict(attrs.getAttributeBooleanValue(LOCAL_NS, "strict", strict));
 		setRecycle(attrs.getAttributeBooleanValue(LOCAL_NS, "recycle", recycle));
+		
+		initImage(false);
 	}
 
 	public GestureImageView(Context context) {
 		super(context);
 		setScaleType(ScaleType.CENTER_INSIDE);
+		initImage(false);
 	}
 
 	@Override
@@ -157,9 +158,9 @@ public class GestureImageView extends ImageView  {
 
 	protected void setupCanvas(int measuredWidth, int measuredHeight, int orientation) {
 
-		if(lastOrientation != orientation) {
+		if(deviceOrientation != orientation) {
 			layout = false;
-			lastOrientation = orientation;
+			deviceOrientation = orientation;
 		}
 
 		if(drawable != null && !layout) {
@@ -168,29 +169,42 @@ public class GestureImageView extends ImageView  {
 
 			hWidth = Math.round(((float)imageWidth / 2.0f));
 			hHeight = Math.round(((float)imageHeight / 2.0f));
-
+			
+			measuredWidth -= (getPaddingLeft() + getPaddingRight());
+			measuredHeight -= (getPaddingTop() + getPaddingBottom());
+			
 			computeCropScale(imageWidth, imageHeight, measuredWidth, measuredHeight);
 			computeStartingScale(imageWidth, imageHeight, measuredWidth, measuredHeight);
 
 			scaleAdjust = startingScale;
 
-			this.centerX = (float)measuredWidth / 2.0f;
-			this.centerY = (float)measuredHeight / 2.0f;
+			this.centerX = (float) measuredWidth / 2.0f;
+			this.centerY = (float) measuredHeight / 2.0f;
 
 			x = centerX;
 			y = centerY;
 
 			gestureImageViewTouchListener = new GestureImageViewTouchListener(this, measuredWidth, measuredHeight);
-			gestureImageViewTouchListener.setMinScale(minScale * fitScaleHorizontal);
+			
+			if(isLandscape()) {
+				gestureImageViewTouchListener.setMinScale(minScale * fitScaleHorizontal);
+			}
+			else {
+				gestureImageViewTouchListener.setMinScale(minScale * fitScaleVertical);
+			}
+			
+			
 			gestureImageViewTouchListener.setMaxScale(maxScale * startingScale);
+			
 			gestureImageViewTouchListener.setFitScaleHorizontal(fitScaleHorizontal);
 			gestureImageViewTouchListener.setFitScaleVertical(fitScaleVertical);
-			
+			gestureImageViewTouchListener.setCanvasWidth(measuredWidth);
+			gestureImageViewTouchListener.setCanvasHeight(measuredHeight);
+			gestureImageViewTouchListener.setOnClickListener(onClickListener);
 
 			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
 
 			super.setOnTouchListener(new OnTouchListener() {
-				
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					if(customOnTouchListener != null) {
@@ -205,15 +219,11 @@ public class GestureImageView extends ImageView  {
 	}
 	
 	protected void computeCropScale(int imageWidth, int imageHeight, int measuredWidth, int measuredHeight) {
-		fitScaleHorizontal = Math.min((float) measuredHeight / (float) imageHeight, (float) measuredWidth/ (float) imageWidth);
-		fitScaleVertical = Math.max((float) measuredHeight / (float) imageHeight, (float) measuredWidth/ (float) imageWidth);
+		fitScaleHorizontal = (float) measuredWidth / (float) imageWidth;
+		fitScaleVertical = (float) measuredHeight / (float) imageHeight;
 	}
 	
 	protected void computeStartingScale(int imageWidth, int imageHeight, int measuredWidth, int measuredHeight) {
-		
-		measuredWidth -= (getPaddingLeft() + getPaddingRight());
-		measuredHeight -= (getPaddingTop() + getPaddingBottom());
-		
 		switch(getScaleType()) {
 			case CENTER: 
 				// Center the image in the view, but perform no scaling. 
@@ -225,8 +235,12 @@ public class GestureImageView extends ImageView  {
 				break;
 				
 			case CENTER_INSIDE: 
-				// Scale the image uniformly (maintain the image's aspect ratio) so that both dimensions (width and height) of the image will be equal to or less than the corresponding dimension of the view (minus padding). 
-				startingScale = fitScaleHorizontal;
+				if(isLandscape()) {
+					startingScale = fitScaleHorizontal;
+				}
+				else {
+					startingScale = fitScaleVertical;
+				}
 				break;
 		}
 	}
@@ -352,7 +366,6 @@ public class GestureImageView extends ImageView  {
 	@Override
 	public void setImageDrawable(Drawable drawable) {
 		this.drawable = drawable;
-		initImage(false);
 	}
 
 	public void setImageResource(int id) {
@@ -364,12 +377,19 @@ public class GestureImageView extends ImageView  {
 			this.recycle();
 		}
 		if(id >= 0) {
-			this.recycle = true;
 			this.resId = id;
 			setImageDrawable(getContext().getResources().getDrawable(id));
 		}
 	}
 
+	public int getScaledWidth() {
+		return Math.round(getImageWidth() * getScale());
+	}
+	
+	public int getScaledHeight() {
+		return Math.round(getImageHeight() * getScale());
+	}
+	
 	public int getImageWidth() {
 		if(drawable != null) {
 			return drawable.getIntrinsicWidth();
@@ -493,7 +513,7 @@ public class GestureImageView extends ImageView  {
 				Cursor cur = getContext().getContentResolver().query(mUri, orientationColumn, null, null, null);
 				
 				if (cur != null && cur.moveToFirst()) {
-					orientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
+					imageOrientation = cur.getInt(cur.getColumnIndex(orientationColumn[0]));
 				}  
 				
 				InputStream in = null;
@@ -502,9 +522,9 @@ public class GestureImageView extends ImageView  {
 					in = getContext().getContentResolver().openInputStream(mUri);
 					Bitmap bmp = BitmapFactory.decodeStream(in);
 					
-					if(orientation != 0) {
+					if(imageOrientation != 0) {
 						Matrix m = new Matrix();
-						m.postRotate(orientation);
+						m.postRotate(imageOrientation);
 						Bitmap rotated = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), m, true);
 						bmp.recycle();
 						setImageDrawable(new BitmapDrawable(getResources(), rotated));
@@ -616,5 +636,50 @@ public class GestureImageView extends ImageView  {
 	@Override
 	public void setOnTouchListener(OnTouchListener l) {
 		this.customOnTouchListener = l;
+	}
+	
+	public float getCenterX() {
+		return centerX;
+	}
+	
+	public float getCenterY() {
+		return centerY;
+	}
+	
+	public boolean isLandscape() {
+		return getImageWidth() >= getImageHeight();
+	}
+	
+	public boolean isPortrait() {
+		return getImageWidth() <= getImageHeight();
+	}
+
+	
+	
+	@Override
+	public void setOnClickListener(OnClickListener l) {
+		this.onClickListener = l;
+		
+		if(gestureImageViewTouchListener != null) {
+			gestureImageViewTouchListener.setOnClickListener(l);
+		}
+	}
+
+	/**
+	 * Returns true if the image dimensions are aligned with the orientation of the device.
+	 * @return
+	 */
+	public boolean isOrientationAligned() {
+		if(deviceOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+			return isLandscape();
+		}
+		else if(deviceOrientation == Configuration.ORIENTATION_PORTRAIT) {
+			return isPortrait();
+		}
+		return true;
+	}
+	
+	public int getDeviceOrientation() {
+		return deviceOrientation;
 	}
 }

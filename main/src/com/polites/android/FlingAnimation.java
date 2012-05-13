@@ -43,11 +43,17 @@ public class FlingAnimation implements Animation {
 		velocityX *= factor;
 		velocityY *= factor;
 		
+		boolean active = (Math.abs(velocityX) > threshold && Math.abs(velocityY) > threshold);
+		
 		if(listener != null) {
 			listener.onMove(dx, dy);
+			
+			if(!active) {
+				listener.onComplete();
+			}
 		}
 		
-		return (Math.abs(velocityX) > threshold && Math.abs(velocityY) > threshold);
+		return active;
 	}
 	
 	public void setVelocityX(float velocityX) {
