@@ -73,7 +73,6 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	private int imageWidth;
 	private int imageHeight;
 	
-//	private DoubleTapListener doubleTapListener;
 	private FlingListener flingListener;
 	private FlingAnimation flingAnimation;
 	private ZoomAnimation zoomAnimation;
@@ -101,7 +100,6 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		currentScale = startingScale;
 		lastScale = startingScale;
 		
-		// Calc boundaries
 		boundaryRight = displayWidth;
 		boundaryBottom = displayHeight;
 		boundaryLeft = 0;
@@ -110,7 +108,6 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		next.x = image.getImageX();
 		next.y = image.getImageY();
 		
-//		doubleTapListener = new DoubleTapListener();
 		flingListener = new FlingListener();
 		flingAnimation = new FlingAnimation();
 		zoomAnimation = new ZoomAnimation();
@@ -307,7 +304,6 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 							
 							if(initialDistance != distance) {
 								
-								// We have moved (scaled)
 								float newScale = (distance / initialDistance) * lastScale;
 								
 								if(newScale <= maxScale) {
