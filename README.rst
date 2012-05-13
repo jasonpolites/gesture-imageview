@@ -19,9 +19,14 @@ Limitations:
 3. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is NOT a bitmap/png/jpg)
 4. Not all methods of ImageView class are supported (will throw UnsupportedOperationException if strict is true)
 
-What's New!
-~~~~~~~~~~~
+What's New in the Latest Release!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- Added double-tap zoom support
+- Added support for onClickListener
+
+New in previous releases
+~~~~~~~~~~~~~~~~~~~~~~~~
 - Added support for CENTER, CENTER_INSIDE and CENTER_CROP scale types
 - Added support for custom OnTouchListener on GestureImageView
 - Fixed NPE when no drawable set on view
