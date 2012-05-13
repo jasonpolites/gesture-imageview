@@ -9,21 +9,21 @@ Features:
 ~~~~~~~~~
 1. Pinch zoom in place (i.e. zoom occurs from point of touch)
 2. Panning with fling gesture
-3. Double tap reset
+3. Double tap zoom
 4. Configurable zoom boundaries (min/max)
 
 Limitations:
 ~~~~~~~~~~~~
 1. Does not support Rotation
 2. Does not support Pan and Zoom together
-3. Only supports Bitmap objects and image resources (i.e. does not support setting a Drawable that is NOT a bitmap/png/jpg)
-4. Not all methods of ImageView class are supported (will throw UnsupportedOperationException if strict is true)
+3. Not all methods of ImageView class are supported (will throw UnsupportedOperationException if strict is true)
 
 What's New in the Latest Release!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Added double-tap zoom support
 - Added support for onClickListener
+- Added support for non-image drawables
 
 New in previous releases
 ~~~~~~~~~~~~~~~~~~~~~~~~
