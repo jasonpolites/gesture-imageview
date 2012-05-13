@@ -57,8 +57,7 @@ code::
 	    	android:src="@drawable/image"
 	    	gesture-image:min-scale="0.1"
 	    	gesture-image:max-scale="10.0"
-	    	gesture-image:strict="false"
-	    	gesture-image:recycle="true"/>
+	    	gesture-image:strict="false"/>
 	    	
 	</LinearLayout>
     	
