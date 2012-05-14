@@ -21,8 +21,10 @@
         
         
         <activity android:name="StandardImageProgrammaticWithOnClick"></activity>
+        <activity android:name="StandardImageProgrammaticWithStartSettings"></activity>
         <activity android:name="StandardImageProgrammatic"></activity>
         <activity android:name="StandardImageXML"></activity>
+        <activity android:name="StandardImageXMLWithStartSettings"></activity>
         <activity android:name="DoubleImage"></activity>
         <activity android:name="ScaleTypeCenter"></activity>
         <activity android:name="ScaleTypeCenterCrop"></activity>

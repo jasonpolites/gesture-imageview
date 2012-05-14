@@ -52,7 +52,7 @@ public class GestureImageView extends ImageView  {
 	private boolean layout = false;
 
 	private float scaleAdjust = 1.0f;
-	private float startingScale = 1.0f;
+	private float startingScale = -1.0f;
 
 	private float scale = 1.0f;
 	private float maxScale = 5.0f;
@@ -63,6 +63,8 @@ public class GestureImageView extends ImageView  {
 
 	private float centerX;
 	private float centerY;
+	
+	private Float startX, startY;
 
 	private int hWidth;
 	private int hHeight;
@@ -99,18 +101,30 @@ public class GestureImageView extends ImageView  {
 			setScaleType(ScaleType.CENTER_INSIDE);
 		}
 		
+		String strStartX = attrs.getAttributeValue(LOCAL_NS, "start-x");
+		String strStartY = attrs.getAttributeValue(LOCAL_NS, "start-y");
+		
+		if(strStartX != null && strStartX.trim().length() > 0) {
+			startX = Float.parseFloat(strStartX);
+		}
+		
+		if(strStartY != null && strStartY.trim().length() > 0) {
+			startY = Float.parseFloat(strStartY);
+		}
+		
+		setStartingScale(attrs.getAttributeFloatValue(LOCAL_NS, "start-scale", startingScale));
 		setMinScale(attrs.getAttributeFloatValue(LOCAL_NS, "min-scale", minScale));
 		setMaxScale(attrs.getAttributeFloatValue(LOCAL_NS, "max-scale", maxScale));
 		setStrict(attrs.getAttributeBooleanValue(LOCAL_NS, "strict", strict));
 		setRecycle(attrs.getAttributeBooleanValue(LOCAL_NS, "recycle", recycle));
 		
-		initImage(false);
+		initImage();
 	}
 
 	public GestureImageView(Context context) {
 		super(context);
 		setScaleType(ScaleType.CENTER_INSIDE);
-		initImage(false);
+		initImage();
 	}
 
 	@Override
@@ -174,15 +188,29 @@ public class GestureImageView extends ImageView  {
 			measuredHeight -= (getPaddingTop() + getPaddingBottom());
 			
 			computeCropScale(imageWidth, imageHeight, measuredWidth, measuredHeight);
-			computeStartingScale(imageWidth, imageHeight, measuredWidth, measuredHeight);
+			
+			if(startingScale <= 0.0f) {
+				computeStartingScale(imageWidth, imageHeight, measuredWidth, measuredHeight);
+			}
 
 			scaleAdjust = startingScale;
 
 			this.centerX = (float) measuredWidth / 2.0f;
 			this.centerY = (float) measuredHeight / 2.0f;
+			
+			if(startX == null) {
+				x = centerX;
+			}
+			else {
+				x = startX;
+			}
 
-			x = centerX;
-			y = centerY;
+			if(startY == null) {
+				y = centerY;
+			}
+			else {
+				y = startY;
+			}	
 
 			gestureImageViewTouchListener = new GestureImageViewTouchListener(this, measuredWidth, measuredHeight);
 			
@@ -338,7 +366,7 @@ public class GestureImageView extends ImageView  {
 		super.onDetachedFromWindow();
 	}
 
-	protected void initImage(boolean original) {
+	protected void initImage() {
 		if(this.drawable != null) {
 			this.drawable.setAlpha(alpha);
 			this.drawable.setFilterBitmap(true);
@@ -347,32 +375,24 @@ public class GestureImageView extends ImageView  {
 			}
 		}
 		
-		if(!original) {
-			layout = false;
+		if(!layout) {
 			requestLayout();
 			redraw();
 		}
 	}
 
 	public void setImageBitmap(Bitmap image) {
-		setImageBitmap(image, false);
-	}
-
-	protected void setImageBitmap(Bitmap image, boolean original) {
 		this.drawable = new BitmapDrawable(getResources(), image);
-		initImage(original);
+		initImage();
 	}
 
 	@Override
 	public void setImageDrawable(Drawable drawable) {
 		this.drawable = drawable;
+		initImage();
 	}
 
 	public void setImageResource(int id) {
-		setImageResource(id, false);
-	}
-
-	protected void setImageResource(int id, boolean original) {
 		if(this.drawable != null) {
 			this.recycle();
 		}
@@ -653,9 +673,16 @@ public class GestureImageView extends ImageView  {
 	public boolean isPortrait() {
 		return getImageWidth() <= getImageHeight();
 	}
+	
+	public void setStartingScale(float startingScale) {
+		this.startingScale = startingScale;
+	}
+	
+	public void setStartingPosition(float x, float y) {
+		this.startX = x;
+		this.startY = y;
+	}
 
-	
-	
 	@Override
 	public void setOnClickListener(OnClickListener l) {
 		this.onClickListener = l;
