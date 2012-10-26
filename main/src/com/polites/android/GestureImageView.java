@@ -18,6 +18,7 @@ package com.polites.android;
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -709,4 +710,11 @@ public class GestureImageView extends ImageView  {
 	public int getDeviceOrientation() {
 		return deviceOrientation;
 	}
+
+    public boolean isZoomed() {
+        if (gestureImageViewTouchListener != null) {
+            return gestureImageViewTouchListener.isZoomed();
+        }
+        return false;
+    }
 }
