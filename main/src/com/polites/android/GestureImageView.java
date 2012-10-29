@@ -264,12 +264,8 @@ public class GestureImageView extends ImageView  {
 				break;
 				
 			case CENTER_INSIDE: 
-				if(isLandscape()) {
-					startingScale = fitScaleHorizontal;
-				}
-				else {
-					startingScale = fitScaleVertical;
-				}
+                // FIX center inside should not crop the image
+                startingScale = Math.min(fitScaleHorizontal, fitScaleVertical);
 				break;
 		}
 	}
@@ -374,11 +370,15 @@ public class GestureImageView extends ImageView  {
 			if(colorFilter != null) {
 				this.drawable.setColorFilter(colorFilter);
 			}
+            // Keppel.Cao
+            layout = false;
+            startingScale = -1.0f;
 		}
 		
 		if(!layout) {
 			requestLayout();
-			redraw();
+            // redraw();
+            reset();
 		}
 	}
 
