@@ -18,6 +18,7 @@ package com.polites.android;
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -263,12 +264,8 @@ public class GestureImageView extends ImageView  {
 				break;
 				
 			case CENTER_INSIDE: 
-				if(isLandscape()) {
-					startingScale = fitScaleHorizontal;
-				}
-				else {
-					startingScale = fitScaleVertical;
-				}
+                // FIX center inside should not crop the image
+                startingScale = Math.min(fitScaleHorizontal, fitScaleVertical);
 				break;
 		}
 	}
@@ -373,11 +370,15 @@ public class GestureImageView extends ImageView  {
 			if(colorFilter != null) {
 				this.drawable.setColorFilter(colorFilter);
 			}
+            // Keppel.Cao
+            layout = false;
+            startingScale = -1.0f;
 		}
 		
 		if(!layout) {
 			requestLayout();
-			redraw();
+            // redraw();
+            reset();
 		}
 	}
 
@@ -709,4 +710,11 @@ public class GestureImageView extends ImageView  {
 	public int getDeviceOrientation() {
 		return deviceOrientation;
 	}
+
+    public boolean isZoomed() {
+        if (gestureImageViewTouchListener != null) {
+            return gestureImageViewTouchListener.isZoomed();
+        }
+        return false;
+    }
 }
