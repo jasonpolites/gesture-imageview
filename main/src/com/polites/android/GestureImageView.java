@@ -488,6 +488,9 @@ public class GestureImageView extends ImageView  {
 		x = centerX;
 		y = centerY;
 		scaleAdjust = startingScale;
+		if (gestureImageViewTouchListener != null) {
+		    gestureImageViewTouchListener.reset();
+		}
 		redraw();
 	}
 
