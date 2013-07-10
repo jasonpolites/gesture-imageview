@@ -1,4 +1,6 @@
 example/bin
 example/gen
+example/local.properties
 main/bin/
 main/gen/
+main/local.properties

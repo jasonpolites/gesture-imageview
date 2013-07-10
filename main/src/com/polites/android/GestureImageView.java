@@ -373,11 +373,15 @@ public class GestureImageView extends ImageView  {
 			if(colorFilter != null) {
 				this.drawable.setColorFilter(colorFilter);
 			}
+      // Keppel.Cao
+      layout = false;
+      startingScale = -1.0f;
 		}
-		
 		if(!layout) {
 			requestLayout();
-			redraw();
+      // Keppel.Cao
+      // redraw();
+      reset();
 		}
 	}
 
