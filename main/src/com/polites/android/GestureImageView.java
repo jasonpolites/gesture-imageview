@@ -498,6 +498,16 @@ public class GestureImageView extends ImageView  {
 		redraw();
 	}
 
+  public void setTo(float newX, float newY, float newScale) {
+    x = newX;
+    y = newY;
+    scaleAdjust = newScale;
+    if (gestureImageViewTouchListener != null) {
+        gestureImageViewTouchListener.setTo(newX, newY, newScale);
+    }
+    redraw();
+  }
+
 	public void setRotation(float rotation) {
 		this.rotation = rotation;
 	}
