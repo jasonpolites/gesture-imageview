@@ -184,7 +184,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		inZoom = true;
 		zoomAnimation.reset();
 		
-		float zoomTo = 1.0f;
+		float zoomTo;
 		
 		if(image.isLandscape()) {
 			if(image.getDeviceOrientation() == Configuration.ORIENTATION_PORTRAIT) {

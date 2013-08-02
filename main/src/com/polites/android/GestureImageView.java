@@ -253,22 +253,31 @@ public class GestureImageView extends ImageView  {
 	
 	protected void computeStartingScale(int imageWidth, int imageHeight, int measuredWidth, int measuredHeight) {
 		switch(getScaleType()) {
-			case CENTER: 
-				// Center the image in the view, but perform no scaling. 
+			case CENTER:
+				// Center the image in the view, but perform no scaling.
 				startingScale = 1.0f;
 				break;
 				
-			case CENTER_CROP: 
+			case CENTER_CROP:
+				// Scale the image uniformly (maintain the image's aspect ratio) so that both dimensions
+				// (width and height) of the image will be equal to or larger than the corresponding dimension of the view (minus padding).
 				startingScale = Math.max((float) measuredHeight / (float) imageHeight, (float) measuredWidth/ (float) imageWidth);
 				break;
 				
-			case CENTER_INSIDE: 
-				if(isLandscape()) {
+			case CENTER_INSIDE:
+
+				// Scale the image uniformly (maintain the image's aspect ratio) so that both dimensions
+				// (width and height) of the image will be equal to or less than the corresponding dimension of the view (minus padding).
+				float wRatio = (float) imageWidth / (float) measuredWidth;
+				float hRatio = (float) imageHeight / (float) measuredHeight;
+
+				if(wRatio > hRatio) {
 					startingScale = fitScaleHorizontal;
 				}
 				else {
 					startingScale = fitScaleVertical;
 				}
+
 				break;
 		}
 	}
