@@ -460,6 +460,24 @@ public class GestureImageView extends ImageView  {
 			gestureImageViewTouchListener.setMaxScale(max * startingScale);
 		}
 	}
+	
+    /**
+     * Directly set the image scale size.
+     * @param newX new x coordiate after zoom update
+     * @param newY new y coordinate after zoom update
+     * @param newScale direct scale ratio to set the image to
+     * @author Bluefire Productions
+     *
+     */
+    public void setTo(float newX, float newY, float newScale) {
+        x = newX;
+        y = newY;
+        scaleAdjust = newScale;
+        if (gestureImageViewTouchListener != null) {
+            gestureImageViewTouchListener.setTo(newX, newY, newScale);
+        }
+        redraw();
+    }
 
 	public void setScale(float scale) {
 		scaleAdjust = scale;
