@@ -180,6 +180,26 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		image.animationStart(flingAnimation);
 	}
 	
+	
+    /**
+     * Directly set the image scale size.
+     * @param newX new x coordiate after zoom update
+     * @param newY new y coordiate after zoom update
+     * @param newScale direct scale ration to set the image to
+     * @author Bluefire Productions
+     */
+    public void setTo(float newX, float newY, float newScale) {
+        currentScale = newScale;
+        lastScale = newScale;
+        next.x = newX;
+        next.y = newY;
+        calculateBoundaries();
+        image.setScale(currentScale);
+        image.setPosition(next.x, next.y);
+        image.redraw();
+	
+    }	
+	
 	private void startZoom(MotionEvent e) {
 		inZoom = true;
 		zoomAnimation.reset();
