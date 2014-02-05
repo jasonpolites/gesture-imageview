@@ -359,6 +359,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		
 		multiTouch = false;
 		
+    //currentScale = image.getScale(); // fix by silentw for issue #27
 		initialDistance = 0;
 		lastScale = currentScale;
 		
@@ -453,7 +454,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		
 		return false;
 	}
-	
+
 	public void reset() {
 		currentScale = startingScale;
 		next.x = centerX;
@@ -463,7 +464,17 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		image.setPosition(next.x, next.y);
 		image.redraw();
 	}
-	
+
+  public void setTo(float newX, float newY, float newScale) {
+    currentScale = newScale;
+    lastScale = newScale;
+    next.x = newX;
+    next.y = newY;
+    calculateBoundaries();
+    image.setScale(currentScale);
+    image.setPosition(next.x, next.y);
+    image.redraw();
+  }
 	
 	public float getMaxScale() {
 		return maxScale;

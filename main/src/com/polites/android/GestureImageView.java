@@ -382,11 +382,15 @@ public class GestureImageView extends ImageView  {
 			if(colorFilter != null) {
 				this.drawable.setColorFilter(colorFilter);
 			}
+      // Keppel.Cao
+      layout = false;
+      startingScale = -1.0f;
 		}
-		
 		if(!layout) {
 			requestLayout();
-			redraw();
+      // Keppel.Cao
+      // redraw();
+      reset();
 		}
 	}
 
@@ -502,6 +506,16 @@ public class GestureImageView extends ImageView  {
 		}
 		redraw();
 	}
+
+  public void setTo(float newX, float newY, float newScale) {
+    x = newX;
+    y = newY;
+    scaleAdjust = newScale;
+    if (gestureImageViewTouchListener != null) {
+        gestureImageViewTouchListener.setTo(newX, newY, newScale);
+    }
+    redraw();
+  }
 
 	public void setRotation(float rotation) {
 		this.rotation = rotation;
