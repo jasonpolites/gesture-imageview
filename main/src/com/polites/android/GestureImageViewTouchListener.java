@@ -39,6 +39,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	private boolean touched = false;
 	private boolean inZoom = false;
+	private boolean zoomed = false;
 	
 	private float initialDistance;
 	private float lastScale = 1.0f;
@@ -269,7 +270,8 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-
+		if (isZoomed())
+			image.getParent().requestDisallowInterceptTouchEvent(true);
 		if(!inZoom) {
 			
 			if(!tapDetector.onTouchEvent(event)) {
@@ -279,6 +281,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 				 
 				if(event.getAction() == MotionEvent.ACTION_UP) {
 					handleUp();
+					zoomed = !(lastScale == startingScale);
 				}
 				else if(event.getAction() == MotionEvent.ACTION_DOWN) {
 					stopAnimations();
@@ -536,5 +539,9 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 			boundaryTop = centerY - diff;
 			boundaryBottom = centerY + diff;
 		}
+	}
+	
+	public boolean isZoomed() {
+		return zoomed;
 	}
 }
