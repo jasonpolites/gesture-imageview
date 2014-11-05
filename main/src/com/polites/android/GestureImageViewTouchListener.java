@@ -456,6 +456,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 	
 	public void reset() {
 		currentScale = startingScale;
+                lastScale = currentScale;
 		next.x = centerX;
 		next.y = centerY;
 		calculateBoundaries();
