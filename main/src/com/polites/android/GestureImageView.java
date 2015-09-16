@@ -162,6 +162,16 @@ public class GestureImageView extends ImageView  {
 		setMeasuredDimension(displayWidth, displayHeight);
 	}
 
+    /**
+     * View reusing fix borrowed from
+     * https://github.com/jasonpolites/gesture-imageview/issues/64
+     * and slightly modified to match code conventions.
+     */
+    private void resetForNextImage() {
+        layout = false;
+        startingScale = -1.0f;
+    }
+
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
@@ -376,6 +386,8 @@ public class GestureImageView extends ImageView  {
 	}
 
 	protected void initImage() {
+		resetForNextImage();
+
 		if(this.drawable != null) {
 			this.drawable.setAlpha(alpha);
 			this.drawable.setFilterBitmap(true);
